@@ -13,17 +13,17 @@
 # Configuration Variables
 # -----------------------------------------------------------------------------
 
-# Main project configuration
+# Main project config
 PROJECT_NAME="falloutdle"
 PROJECT_PATH="$HOME/dev/$PROJECT_NAME"
-MAIN_PATH="cmd/server"                    # Default server path
+MAIN_PATH="server"                    # Default server path
 MAIN_FILE="main.go"                       # Main executable file
 FULL_PATH="$PROJECT_PATH/$MAIN_PATH"
 
-# Runtime configuration
-BUILD_COMMAND="go run"                    # Command to run the application
-LOG_LEVEL="info"                          # Default log level
-PORT="8080"                               # Default port
+# Export .env variables
+set -a  # auto-export enable
+source .env
+set +a # auto-export disable
 
 # -----------------------------------------------------------------------------
 # Utility Functions
@@ -133,13 +133,13 @@ Usage: $0 [OPTIONS] [SUBDIRECTORY]
 Generic project starter script for $PROJECT_NAME
 
 OPTIONS:
-    -h, --help          Show this help message
-    -p, --port PORT     Set custom port (default: $PORT)
-    -v, --verbose       Enable verbose output
+    -h, --help         Show this help message
+    -p, --port PORT    Set custom port (default: $PORT)
+    -v, --verbose      Enable verbose output
     --dry-run          Show what would be executed without running
 
 EXAMPLES:
-    $0                  # Start server in default location
+    $0                 # Start server in default location
     $0 api/v1          # Start server in api/v1 subdirectory
     $0 --port 3000     # Start server on port 3000
 
