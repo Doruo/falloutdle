@@ -1,0 +1,17 @@
+# Temporary Go files
+*.test
+*.prof
+
+# Dependancies
+vendor/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
