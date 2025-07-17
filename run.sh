@@ -4,7 +4,7 @@
 # Generic Project Starter Script
 # =============================================================================
 # Description: Configurable script to start development servers
-# Usage: ./start.sh [target_subdirectory]
+# Usage: ./run.sh [target_subdirectory]
 # Author: Marc Haye
 # Version: 1.0
 # =============================================================================
