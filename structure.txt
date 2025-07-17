@@ -1,0 +1,57 @@
+falloutdle/
+├── cmd/
+│   └── server/
+│       └── main.go                 # Point d'entrée
+├── internal/
+│   ├── api/
+│   │   ├── handlers/
+│   │   │   ├── character.go        # Handlers pour personnages
+│   │   │   ├── game.go            # Handlers pour jeu quotidien
+│   │   │   └── health.go          # Health check
+│   │   ├── middleware/
+│   │   │   ├── cors.go
+│   │   │   ├── logging.go
+│   │   │   └── ratelimit.go
+│   │   └── routes/
+│   │       └── routes.go          # Configuration des routes
+│   ├── domain/
+│   │   ├── models/
+│   │   │   ├── character.go       # Structures de données
+│   │   │   ├── game.go
+│   │   │   └── guess.go
+│   │   └── services/
+│   │       ├── character_service.go
+│   │       ├── game_service.go
+│   │       └── scraper_service.go
+│   ├── infrastructure/
+│   │   ├── database/
+│   │   │   ├── migrations/
+│   │   │   ├── connection.go
+│   │   │   └── queries.go
+│   │   ├── external/
+│   │   │   └── wiki_client.go     # Client pour API MediaWiki
+│   │   └── cache/
+│   │       └── redis.go
+│   └── config/
+│       └── config.go              # Configuration
+├── pkg/
+│   ├── logger/
+│   │   └── logger.go              # Logger personnalisé
+│   └── utils/
+│       ├── response.go            # Réponses HTTP standardisées
+│       └── validator.go           # Validation des données
+├── scripts/
+│   └── scraper/
+│       └── main.go                # Script de récupération des données
+├── data/
+│   ├── characters.json            # Données récupérées
+│   └── migrations/
+├── docker/
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── .env.example
+├── .gitignore
+├── go.mod
+├── go.sum
+├── Makefile
+└── README.md
