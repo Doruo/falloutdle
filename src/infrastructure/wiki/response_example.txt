@@ -1,0 +1,17 @@
+
+https://fallout.fandom.com/api.php?action=query&format=json&prop=revisions&rvprop=content&rvslots=main&titles=Roger_Maxson
+
+{{Infobox character
+|mentions    =FO1, FO3, FNV, FO76, FO76SD, FO76SR 
+|games       =FOSO
+|name        =High Elder Roger Maxson
+|image       =FOSO Roger Maxson.png
+|image desc  =''As depicted in [[Fallout Shelter Online]]''
+|race        =[[Human]]
+|gender      =Male
+|status      =Deceased
+|titles      ="The Great Deliverer"{{cn}}
+|affiliation =* [[United States Army|U.S. Army]] (deserted)
+* [[Brotherhood of Steel]]
+|role        =* Mariposa Military Base security force second in command
+* Founder...
