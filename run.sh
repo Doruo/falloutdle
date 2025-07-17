@@ -72,9 +72,6 @@ check_dependencies() {
         exit 1
     fi
     
-    # Add more dependency checks here as needed
-    # Example: docker, npm, python, etc.
-    
     print_info "All dependencies are available"
 }
 
@@ -111,10 +108,7 @@ setup_environment() {
     export APP_ENV="${APP_ENV:-development}"
     export LOG_LEVEL="$LOG_LEVEL"
     export PORT="$PORT"
-    
-    # Add more environment setup here
-    # Example: database URLs, API keys, etc.
-    
+ 
     print_info "Environment configured for $APP_ENV mode"
 }
 
