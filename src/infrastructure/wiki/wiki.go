@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -60,7 +61,7 @@ type CategoryResponse struct {
 // NewWikiClient creates a new WikiClient instance
 func NewWikiClient() *WikiClient {
 	return &WikiClient{
-		baseURL: "https://fallout.fandom.com/api.php",
+		baseURL: os.Getenv("WIKI_API_URL"),
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
