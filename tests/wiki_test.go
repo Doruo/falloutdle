@@ -7,22 +7,40 @@ import (
 	"github.com/doruo/falloutdle/src/infrastructure/wiki"
 )
 
-func TestMediaWikiClient_GetPage(t *testing.T) {
+var wiki_client = wiki.NewWikiClient()
+var page_name = "John_Hancock"
+var content_show_length = 0
 
-	fmt.Println("Testing getWikiPageContent...")
+func TestMediaWikiClient_GetPageContent(t *testing.T) {
+	_, err := wiki_client.GetPageContent(page_name)
 
-	client := wiki.NewWikiClient()
-	page_name := "Roger_Maxson"
-	content_show_lenght := 1990
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+}
 
-	content, err := client.GetPageContent(page_name)
+func TestMediaWikiClient_ParseCharacterFromContent(t *testing.T) {
+
+	content, err := wiki_client.GetPageContent(page_name)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
 	if len(content) > 0 {
-		fmt.Printf("%s...\n", content[:content_show_lenght])
+		fmt.Printf("%s...\n", content[:content_show_length])
+	} else {
+		fmt.Printf("No content found")
+	}
+
+	character, err := wiki_client.ParseCharacterFromContent(content)
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if len(content) > 0 {
+		fmt.Println(character)
 	} else {
 		fmt.Printf("No content found")
 	}
