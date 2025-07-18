@@ -12,9 +12,8 @@ var page_name = "John_Hancock"
 var content_show_length = 0
 
 func TestMediaWikiClient_GetPageContent(t *testing.T) {
-	_, err := wiki_client.GetPageContent(page_name)
 
-	if err != nil {
+	if _, err := wiki_client.GetPageContent(page_name); err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 }
@@ -40,7 +39,7 @@ func TestMediaWikiClient_ParseCharacterFromContent(t *testing.T) {
 	}
 
 	if len(content) > 0 {
-		fmt.Println(character)
+		fmt.Printf("Character result: %v", character)
 	} else {
 		fmt.Printf("No content found")
 	}

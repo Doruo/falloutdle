@@ -170,7 +170,6 @@ func (w *WikiClient) ParseCharacterFromContent(content string) (*models.Characte
 	if len(matches) < 2 {
 		return nil, fmt.Errorf("no character infobox found in content")
 	}
-
 	infoboxContent := matches[1]
 
 	// Parse infobox fields
@@ -197,12 +196,6 @@ func (w *WikiClient) ParseCharacterFromContent(content string) (*models.Characte
 
 	// Parse titles
 	character.Titles = w.parseTitlesList(w.extractField(infoboxContent, "titles"))
-
-	// Set timestamps
-	now := time.Now()
-	character.CreatedAt = now
-	character.UpdatedAt = now
-
 	return character, nil
 }
 

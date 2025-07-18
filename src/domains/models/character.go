@@ -1,23 +1,19 @@
 package models
 
-import "time"
-
 // Character represents a Fallout character with all game-relevant properties
 type Character struct {
-	ID          int       `json:"id" db:"id"`
-	Name        string    `json:"name" db:"name"`
-	Games       []string  `json:"games" db:"games"`       // Games where character appears
-	Mentions    []string  `json:"mentions" db:"mentions"` // Games where character is mentioned
-	Race        string    `json:"race" db:"race"`
-	Gender      string    `json:"gender" db:"gender"`
-	Status      string    `json:"status" db:"status"` // Alive, Deceased, Unknown
-	Affiliation []string  `json:"affiliation" db:"affiliation"`
-	Role        string    `json:"role" db:"role"`
-	Titles      []string  `json:"titles" db:"titles"`
-	MainGame    string    `json:"main_game" db:"main_game"` // Primary game of appearance
-	ImageURL    string    `json:"image_url" db:"image_url"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	ID          int      `json:"id" db:"id"`
+	Name        string   `json:"name" db:"name"`
+	Games       []string `json:"games" db:"games"`       // Games where character appears
+	Mentions    []string `json:"mentions" db:"mentions"` // Games where character is mentioned
+	Race        string   `json:"race" db:"race"`
+	Gender      string   `json:"gender" db:"gender"`
+	Status      string   `json:"status" db:"status"` // Alive, Deceased, Unknown
+	Affiliation []string `json:"affiliation" db:"affiliation"`
+	Role        string   `json:"role" db:"role"`
+	Titles      []string `json:"titles" db:"titles"`
+	MainGame    string   `json:"main_game" db:"main_game"` // Primary game of appearance
+	ImageURL    string   `json:"image" db:"image"`
 }
 
 // GameCode represents the mapping between wiki game codes and full names
@@ -31,14 +27,17 @@ var GameCodes = map[string]string{
 	"FO1":    "Fallout",
 	"FO2":    "Fallout 2",
 	"FO3":    "Fallout 3",
-	"FNV":    "Fallout: New Vegas",
 	"FO4":    "Fallout 4",
+	"FNV":    "Fallout: New Vegas",
 	"FO76":   "Fallout 76",
+	"FOS":    "Fallout Shelter",
 	"FOSO":   "Fallout Shelter Online",
 	"FO76SD": "Fallout 76: Steel Dawn",
 	"FO76SR": "Fallout 76: Steel Reign",
 	"FOT":    "Fallout Tactics",
 	"FOBOS":  "Fallout: Brotherhood of Steel",
+	"FBGNC":  "Fallout Board Game: New California",
+	"FOWW":   "Fallout: Wasteland Warfare",
 }
 
 // GetMainGameFullName returns the full name of the main game
