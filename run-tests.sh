@@ -18,11 +18,11 @@ set -a  # auto-export enable
 source .env
 set +a # auto-export disable
 
-# Main project config
+# Project config
 PROJECT_NAME="falloutdle"
 PROJECT_PATH="$HOME/dev/$PROJECT_NAME"
 
-# Tests config
+# Test config
 TESTS_PATH="$PROJECT_PATH/tests"
 VERBOSE=false
 
