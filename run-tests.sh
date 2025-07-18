@@ -13,15 +13,18 @@
 # Configuration Variables
 # -----------------------------------------------------------------------------
 
-# Tests config
-TESTS_PATH="$PROJECT_PATH/tests"
-VERBOSE=false
-
 # Export .env variables
 set -a  # auto-export enable
 source .env
 set +a # auto-export disable
 
+# Main project config
+PROJECT_NAME="falloutdle"
+PROJECT_PATH="$HOME/dev/$PROJECT_NAME"
+
+# Tests config
+TESTS_PATH="$PROJECT_PATH/tests"
+VERBOSE=false
 
 # -----------------------------------------------------------------------------
 # Utility Functions
@@ -62,11 +65,7 @@ EOF
 # Main Execution Logic
 # -----------------------------------------------------------------------------
 
-cd "$TESTS_PATH"
-
-for file in ./*
-do
-  while [[ $# -gt 0 ]]; do
+while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
             show_help
@@ -85,8 +84,24 @@ do
             TARGET_SUBDIRECTORY="$1"
             shift
             ;;
-    esac
+    esac  
 done
+
+# Pre-flight checks
+# Navigate to target directory if specified
+if [[ -n "$TARGET_SUBDIRECTORY" ]]; then
+    EXECUTION_PATH="$TARGET_SUBDIRECTORY"
+else
+    EXECUTION_PATH="$TESTS_PATH"
+fi
+
+print_info "Execution path: $EXECUTION_PATH"
+
+print_info "Starting $PROJECT_NAME tests..."
+
+cd "$EXECUTION_PATH"
+for file in ./*
+do
   echo "Testing file: $file"
   if ($VERBOSE) 
   then
