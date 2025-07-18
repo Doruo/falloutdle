@@ -87,6 +87,8 @@ while [[ $# -gt 0 ]]; do
     esac  
 done
 
+print_info "Starting $PROJECT_NAME tests..."
+
 # Pre-flight checks
 # Navigate to target directory if specified
 if [[ -n "$TARGET_SUBDIRECTORY" ]]; then
@@ -96,17 +98,20 @@ else
 fi
 
 print_info "Execution path: $EXECUTION_PATH"
-
-print_info "Starting $PROJECT_NAME tests..."
-
 cd "$EXECUTION_PATH"
-for file in ./*
+
+if ($VERBOSE) 
+then
+    print_warning "Verbose enabled !"
+    EXECUTION_COMMAND="go test -v"
+else
+    EXECUTION_COMMAND="go test"
+fi
+
+print_info "Execution command: $EXECUTION_COMMAND [file].go"
+
+for file in *
 do
-  echo "Testing file: $file"
-  if ($VERBOSE) 
-  then
-    go test -v "$file"
-  else
-    go test "$file"
-  fi
+  print_info "Testing file: $file"
+  $EXECUTION_COMMAND $file
 done
