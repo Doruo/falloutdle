@@ -31,7 +31,7 @@ falloutdle/
 │   │   │   ├── connection.go
 │   │   │   └── queries.go
 │   │   ├── external/
-│   │   │   └── wiki.go     #  MediaWiki API Client
+│   │   │   └── wiki_client.go     #  MediaWiki API Client
 │   │   └── cache/
 │   │       └── redis.go
 │   └── config/
