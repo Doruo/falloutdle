@@ -6,9 +6,8 @@ import "time"
 type Character struct {
 	ID          int       `json:"id" db:"id"`
 	Name        string    `json:"name" db:"name"`
-	WikiTitle   string    `json:"wiki_title" db:"wiki_title"` // Original wiki page title
-	Games       []string  `json:"games" db:"games"`           // Games where character appears
-	Mentions    []string  `json:"mentions" db:"mentions"`     // Games where character is mentioned
+	Games       []string  `json:"games" db:"games"`       // Games where character appears
+	Mentions    []string  `json:"mentions" db:"mentions"` // Games where character is mentioned
 	Race        string    `json:"race" db:"race"`
 	Gender      string    `json:"gender" db:"gender"`
 	Status      string    `json:"status" db:"status"` // Alive, Deceased, Unknown

@@ -162,31 +162,25 @@ func (w *WikiClient) getCategoryMembers(category string) ([]string, error) {
 // /--- PARSE FUNCTIONS ---/
 
 // ParseCharacterFromContent parses MediaWiki content to extract character information
-func (w *WikiClient) ParseCharacterFromContent(title, content string) (*models.Character, error) {
+func (w *WikiClient) ParseCharacterFromContent(content string) (*models.Character, error) {
 	// Extract infobox content using regex
-	infoboxRegex := regexp.MustCompile(`\{\{Infobox character(.*?)\}\}`)
+	infoboxRegex := regexp.MustCompile(`(?s)\{\{Infobox character(.*?)\}\}`)
 	matches := infoboxRegex.FindStringSubmatch(content)
 
 	if len(matches) < 2 {
-		return nil, fmt.Errorf("no character infobox found in %s", title)
+		return nil, fmt.Errorf("no character infobox found in content")
 	}
 
 	infoboxContent := matches[1]
 
 	// Parse infobox fields
 	character := &models.Character{
-		WikiTitle: title,
-		Name:      w.extractField(infoboxContent, "name"),
-		Race:      w.cleanRaceField(w.extractField(infoboxContent, "race")),
-		Gender:    w.extractField(infoboxContent, "gender"),
-		Status:    w.extractField(infoboxContent, "status"),
-		Role:      w.extractField(infoboxContent, "role"),
-		ImageURL:  w.extractField(infoboxContent, "image"),
-	}
-
-	// If no name field, use title
-	if character.Name == "" {
-		character.Name = title
+		Name:     w.extractField(infoboxContent, "name"),
+		Race:     w.cleanRaceField(w.extractField(infoboxContent, "race")),
+		Gender:   w.extractField(infoboxContent, "gender"),
+		Status:   w.extractField(infoboxContent, "status"),
+		Role:     w.extractField(infoboxContent, "role"),
+		ImageURL: w.extractField(infoboxContent, "image"),
 	}
 
 	// Parse games and mentions
