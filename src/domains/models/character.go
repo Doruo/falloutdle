@@ -23,72 +23,6 @@ type Character struct {
 	ImageURL    string   `json:"image_url" db:"image_url"`
 }
 
-// GameCode represents standardized game codes
-type GameCode string
-
-const (
-	FO1    GameCode = "FO1"
-	FO2    GameCode = "FO2"
-	FO3    GameCode = "FO3"
-	FNV    GameCode = "FNV"
-	FO4    GameCode = "FO4"
-	FO76   GameCode = "FO76"
-	FOS    GameCode = "FOS"    // Fallout Shelter
-	FOSO   GameCode = "FOSO"   // Fallout Shelter Online
-	FOSBR  GameCode = "FOSBR"  // Fallout Shelter
-	FO76SD GameCode = "FO76SD" // Fallout 76 Steel Dawn
-	FO76SR GameCode = "FO76SR" // Fallout 76 Steel Reign
-	FOT    GameCode = "FOT"    // Fallout Tactics
-	FOBOS  GameCode = "FOBOS"  // Fallout: Brotherhood of Steel
-	FBGNC  GameCode = "FBGNC"  // Fallout Board Game: New California
-	FOWW   GameCode = "FOWW"   // Fallout: Wasteland Warfare
-)
-
-// GameFullName returns the full name of a game from its code
-func (g GameCode) GameFullName() string {
-	gameNames := map[GameCode]string{
-		FO1:    "Fallout",
-		FO2:    "Fallout 2",
-		FO3:    "Fallout 3",
-		FNV:    "Fallout: New Vegas",
-		FO4:    "Fallout 4",
-		FO76:   "Fallout 76",
-		FOS:    "Fallout Shelter",
-		FOSO:   "Fallout Shelter Online",
-		FOSBR:  "Fallout Shelter",
-		FO76SD: "Fallout 76: Steel Dawn",
-		FO76SR: "Fallout 76: Steel Reign",
-		FOT:    "Fallout Tactics",
-		FOBOS:  "Fallout: Brotherhood of Steel",
-		FBGNC:  "Fallout Board Game: New California",
-		FOWW:   "Fallout: Wasteland Warfare",
-	}
-
-	if name, exists := gameNames[g]; exists {
-		return name
-	}
-	return string(g)
-}
-
-// NormalizeGameCodes converts comma-separated game codes to slice
-func NormalizeGameCodes(gamesStr string) []string {
-	if gamesStr == "" {
-		return []string{}
-	}
-
-	games := strings.Split(gamesStr, ",")
-	var normalized []string
-
-	for _, game := range games {
-		game = strings.TrimSpace(game)
-		if game != "" {
-			normalized = append(normalized, game)
-		}
-	}
-
-	return normalized
-}
-
 // GetMainGame returns the primary game of origin (first in games list)
 func (c *Character) GetMainGame() string {
 	if len(c.Games) > 0 {
@@ -290,16 +224,4 @@ func (c *Character) StringJSON() string {
 		return fmt.Sprintf("Character{JSON marshal error: %v}", err)
 	}
 	return string(jsonBytes)
-}
-
-// CharacterFilter represents filters for character queries
-type CharacterFilter struct {
-	Game        string `json:"game"`
-	Race        string `json:"race"`
-	Gender      string `json:"gender"`
-	Status      string `json:"status"`
-	Affiliation string `json:"affiliation"`
-	Playable    *bool  `json:"playable"`
-	Limit       int    `json:"limit"`
-	Offset      int    `json:"offset"`
 }

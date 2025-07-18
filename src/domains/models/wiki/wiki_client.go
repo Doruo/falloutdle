@@ -3,15 +3,18 @@ package wiki
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/doruo/falloutdle/src/domains/models"
 )
+
+// Fallout Fandom Wiki API URL
+var wiki_api_url = "https://fallout.fandom.com/api.php"
 
 // /----- STRUCTS -----/
 
@@ -63,11 +66,12 @@ type CategoryMember struct {
 // /----- FUNCTIONS -----/
 
 // NewWikiClient creates a new WikiClient instance
+// Timeout specifies a time limit in seconds for requests made by this Client.
 func NewWikiClient() *WikiClient {
 	return &WikiClient{
-		baseURL: os.Getenv("WIKI_API_URL"),
+		baseURL: wiki_api_url,
 		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout: 15 * time.Second,
 		},
 	}
 }
@@ -83,8 +87,10 @@ func (w *WikiClient) GetPageContent(title string) (string, error) {
 	params.Add("format", "json")
 	params.Add("titles", title)
 
+	// Full wiki api request parse
 	fullURL := w.baseURL + "?" + params.Encode()
 
+	// HTTP request to wiki api
 	resp, err := w.httpClient.Get(fullURL)
 	if err != nil {
 		return "", fmt.Errorf("http request failed: %w", err)
@@ -108,32 +114,6 @@ func (w *WikiClient) GetPageContent(title string) (string, error) {
 	}
 
 	return "", fmt.Errorf("no content found for page: %s", title)
-}
-
-// GetCategoryMembers retrieves all pages in a specific category
-func (w *WikiClient) GetCategoryMembers(category string) ([]CategoryMember, error) {
-
-	params := url.Values{}
-	params.Add("action", "query")
-	params.Add("list", "categorymembers")
-	params.Add("cmtitle", "Category:"+category)
-	params.Add("cmlimit", "500") // Maximum allowed
-	params.Add("format", "json")
-
-	fullURL := w.baseURL + "?" + params.Encode()
-
-	resp, err := w.httpClient.Get(fullURL)
-	if err != nil {
-		return nil, fmt.Errorf("HTTP request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	var catResp CategoryResponse
-	if err := json.NewDecoder(resp.Body).Decode(&catResp); err != nil {
-		return nil, fmt.Errorf("JSON parsing failed: %w", err)
-	}
-
-	return catResp.Query.CategoryMembers, nil
 }
 
 // /--- PARSE FUNCTIONS ---/
@@ -210,6 +190,107 @@ func (w *WikiClient) ParseCharacterFromContent(title, content string) (*models.C
 
 	return character, nil
 }
+
+// /---- FETCH CHARACTERS -----/
+
+func (w *WikiClient) FetchAllCharacters() (characters []*models.Character, e error) {
+
+	for _, game_code := range models.AllGameCodes {
+		temp_characters, err := w.FetchCharactersByGame(game_code)
+
+		// Error case
+		if err != nil {
+			log.Printf("Error fetching characters for game %s: %v", game_code, err)
+			return nil, e
+		}
+
+		// []*Character to []Character conversion before appending
+		for _, character := range temp_characters {
+			if character != nil {
+				characters = append(characters, character)
+			}
+		}
+	}
+	return
+}
+
+func (w *WikiClient) FetchCharactersByGame(game models.GameCode) ([]*models.Character, error) {
+	categoryTitle := fmt.Sprintf("Category:%s_characters", strings.ReplaceAll(game.GameFullName(), " ", "_"))
+
+	params := url.Values{}
+	params.Set("action", "query")
+	params.Set("format", "json")
+	params.Set("list", "categorymembers")
+	params.Set("cmtitle", categoryTitle)
+	params.Set("cmlimit", "500")
+
+	var characters []*models.Character
+	cmContinue := ""
+
+	for {
+		iterParams := url.Values{}
+		for k, vs := range params {
+			for _, v := range vs {
+				iterParams.Add(k, v)
+			}
+		}
+		if cmContinue != "" {
+			iterParams.Set("cmcontinue", cmContinue)
+		}
+
+		fullURL := w.baseURL + "?" + iterParams.Encode()
+
+		resp, err := w.httpClient.Get(fullURL)
+		if err != nil {
+			return nil, fmt.Errorf("HTTP request failed: %w", err)
+		}
+		defer resp.Body.Close()
+
+		var result struct {
+			Continue struct {
+				CmContinue string `json:"cmcontinue"`
+			} `json:"continue"`
+			Query struct {
+				CategoryMembers []struct {
+					Title string `json:"title"`
+					NS    int    `json:"ns"`
+				} `json:"categorymembers"`
+			} `json:"query"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			return nil, fmt.Errorf("failed to decode JSON: %w", err)
+		}
+
+		for _, member := range result.Query.CategoryMembers {
+			if member.NS != 0 {
+				continue
+			}
+
+			content, err := w.GetPageContent(member.Title)
+			if err != nil {
+				log.Printf("Failed to get content for %s: %v", member.Title, err)
+				continue
+			}
+
+			character, err := w.ParseCharacterFromContent(member.Title, content)
+			if err != nil {
+				log.Printf("Failed to parse character %s: %v", member.Title, err)
+				continue
+			}
+
+			characters = append(characters, character)
+		}
+
+		if result.Continue.CmContinue == "" {
+			break
+		}
+		cmContinue = result.Continue.CmContinue
+	}
+
+	return characters, nil
+}
+
+// /---- UTILITY FUNCTIONS -----/
 
 // cleanWikiText removes wiki markup from text
 func (w *WikiClient) cleanWikiText(text string) string {
@@ -295,40 +376,4 @@ func (w *WikiClient) parseImageURL(value string) string {
 	// For now, just return the filename
 	// Could be expanded to construct full Fandom image URLs
 	return strings.TrimSpace(value)
-}
-
-// GetCharactersByCategory retrieves characters from a specific category
-func (w *WikiClient) GetCharactersByCategory(category string) ([]*models.Character, error) {
-	members, err := w.GetCategoryMembers(category)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get category members: %w", err)
-	}
-
-	var characters []*models.Character
-
-	for _, member := range members {
-		// Skip non-article pages (ns != 0)
-		if member.NS != 0 {
-			continue
-		}
-
-		content, err := w.GetPageContent(member.Title)
-		if err != nil {
-			fmt.Printf("Warning: failed to get content for %s: %v\n", member.Title, err)
-			continue
-		}
-
-		character, err := w.ParseCharacterFromContent(member.Title, content)
-		if err != nil {
-			fmt.Printf("Warning: failed to parse character %s: %v\n", member.Title, err)
-			continue
-		}
-
-		characters = append(characters, character)
-
-		// Add small delay to be respectful to the API
-		time.Sleep(100 * time.Millisecond)
-	}
-
-	return characters, nil
 }
