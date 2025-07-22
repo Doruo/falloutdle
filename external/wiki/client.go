@@ -37,8 +37,127 @@ func NewWikiClient() *WikiClient {
 	}
 }
 
-// GetPageContent retrieves the raw content of a wiki page
-func (w *WikiClient) GetPageContent(title string) (string, error) {
+// /---- FETCH FUNCTIONS -----/
+
+// FetchCharacterByName retrieves the raw content of a wiki page and returns a character struct
+func (w *WikiClient) FetchCharacterByName(name string) (*character.Character, error) {
+
+	content, err := w.FetchPageContent(name)
+
+	if err != nil {
+		log.Printf("Error while fetching page content for %s: %v", name, err)
+		return nil, err
+	}
+
+	c, err := w.ParseCharacterFromContent(name, content)
+
+	if err != nil {
+		log.Printf("Error while parsing character %s: %v", name, err)
+		return nil, err
+	}
+
+	return c, nil
+}
+
+func (w *WikiClient) FetchAllCharacters() (characters []*character.Character, e error) {
+
+	for _, game_code := range character.AllGameCodes {
+		temp_characters, err := w.FetchCharactersByGame(game_code)
+
+		// Error case
+		if err != nil {
+			log.Printf("Error fetching characters for game %s: %v", game_code, err)
+			return nil, e
+		}
+
+		// []*Character to []Character conversion before appending
+		for _, character := range temp_characters {
+			if character != nil {
+				characters = append(characters, character)
+			}
+		}
+	}
+	return
+}
+
+func (w *WikiClient) FetchCharactersByGame(game character.GameCode) ([]*character.Character, error) {
+	categoryTitle := fmt.Sprintf("Category:%s_characters", strings.ReplaceAll(game.GameFullName(), " ", "_"))
+
+	params := url.Values{}
+	params.Set("action", "query")
+	params.Set("format", "json")
+	params.Set("list", "categorymembers")
+	params.Set("cmtitle", categoryTitle)
+	params.Set("cmlimit", "500")
+
+	var characters []*character.Character
+	cmContinue := ""
+
+	for {
+		iterParams := url.Values{}
+		for k, vs := range params {
+			for _, v := range vs {
+				iterParams.Add(k, v)
+			}
+		}
+		if cmContinue != "" {
+			iterParams.Set("cmcontinue", cmContinue)
+		}
+
+		fullURL := w.baseURL + "?" + iterParams.Encode()
+
+		resp, err := w.httpClient.Get(fullURL)
+		if err != nil {
+			return nil, fmt.Errorf("HTTP request failed: %w", err)
+		}
+		defer resp.Body.Close()
+
+		var result struct {
+			Continue struct {
+				CmContinue string `json:"cmcontinue"`
+			} `json:"continue"`
+			Query struct {
+				CategoryMembers []struct {
+					Title string `json:"title"`
+					NS    int    `json:"ns"`
+				} `json:"categorymembers"`
+			} `json:"query"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			return nil, fmt.Errorf("failed to decode JSON: %w", err)
+		}
+
+		for _, member := range result.Query.CategoryMembers {
+			if member.NS != 0 {
+				continue
+			}
+
+			content, err := w.FetchPageContent(member.Title)
+			if err != nil {
+				log.Printf("Failed to get content for %s: %v", member.Title, err)
+				continue
+			}
+
+			character, err := w.ParseCharacterFromContent(member.Title, content)
+			if err != nil {
+				log.Printf("Failed to parse character %s: %v", member.Title, err)
+				continue
+			}
+
+			characters = append(characters, character)
+		}
+
+		if result.Continue.CmContinue == "" {
+			break
+		}
+		cmContinue = result.Continue.CmContinue
+	}
+
+	return characters, nil
+}
+
+// FetchPageContent retrieves the raw content of a wiki page
+func (w *WikiClient) FetchPageContent(title string) (string, error) {
 
 	params := url.Values{}
 	params.Add("action", "query")
@@ -150,105 +269,6 @@ func (w *WikiClient) ParseCharacterFromContent(title, content string) (*characte
 	c.MainGame = c.GetMainGame()
 
 	return c, nil
-}
-
-// /---- FETCH FUNCTIONS -----/
-
-func (w *WikiClient) FetchAllCharacters() (characters []*character.Character, e error) {
-
-	for _, game_code := range character.AllGameCodes {
-		temp_characters, err := w.FetchCharactersByGame(game_code)
-
-		// Error case
-		if err != nil {
-			log.Printf("Error fetching characters for game %s: %v", game_code, err)
-			return nil, e
-		}
-
-		// []*Character to []Character conversion before appending
-		for _, character := range temp_characters {
-			if character != nil {
-				characters = append(characters, character)
-			}
-		}
-	}
-	return
-}
-
-func (w *WikiClient) FetchCharactersByGame(game character.GameCode) ([]*character.Character, error) {
-	categoryTitle := fmt.Sprintf("Category:%s_characters", strings.ReplaceAll(game.GameFullName(), " ", "_"))
-
-	params := url.Values{}
-	params.Set("action", "query")
-	params.Set("format", "json")
-	params.Set("list", "categorymembers")
-	params.Set("cmtitle", categoryTitle)
-	params.Set("cmlimit", "500")
-
-	var characters []*character.Character
-	cmContinue := ""
-
-	for {
-		iterParams := url.Values{}
-		for k, vs := range params {
-			for _, v := range vs {
-				iterParams.Add(k, v)
-			}
-		}
-		if cmContinue != "" {
-			iterParams.Set("cmcontinue", cmContinue)
-		}
-
-		fullURL := w.baseURL + "?" + iterParams.Encode()
-
-		resp, err := w.httpClient.Get(fullURL)
-		if err != nil {
-			return nil, fmt.Errorf("HTTP request failed: %w", err)
-		}
-		defer resp.Body.Close()
-
-		var result struct {
-			Continue struct {
-				CmContinue string `json:"cmcontinue"`
-			} `json:"continue"`
-			Query struct {
-				CategoryMembers []struct {
-					Title string `json:"title"`
-					NS    int    `json:"ns"`
-				} `json:"categorymembers"`
-			} `json:"query"`
-		}
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			return nil, fmt.Errorf("failed to decode JSON: %w", err)
-		}
-
-		for _, member := range result.Query.CategoryMembers {
-			if member.NS != 0 {
-				continue
-			}
-
-			content, err := w.GetPageContent(member.Title)
-			if err != nil {
-				log.Printf("Failed to get content for %s: %v", member.Title, err)
-				continue
-			}
-
-			character, err := w.ParseCharacterFromContent(member.Title, content)
-			if err != nil {
-				log.Printf("Failed to parse character %s: %v", member.Title, err)
-				continue
-			}
-
-			characters = append(characters, character)
-		}
-
-		if result.Continue.CmContinue == "" {
-			break
-		}
-		cmContinue = result.Continue.CmContinue
-	}
-
-	return characters, nil
 }
 
 // /---- UTILITY FUNCTIONS -----/
