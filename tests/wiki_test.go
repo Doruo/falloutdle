@@ -3,16 +3,16 @@ package tests
 import (
 	"testing"
 
-	"github.com/doruo/falloutdle/src/infrastructure/external/wiki"
+	"github.com/doruo/falloutdle/external/wiki"
 )
 
-var wiki_client = wiki.NewWikiClient()
+var client = wiki.NewWikiClient()
 var character_name = "Roger_Maxson"
 var content_show_length = 50 // Set value > 0 to display response content
 
 func TestMediaWikiClient_GetPageContent(t *testing.T) {
 
-	if content, err := wiki_client.GetPageContent(character_name); err != nil {
+	if content, err := client.GetPageContent(character_name); err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	} else if len(content) > 0 {
 		t.Logf("%s...\n", content[:content_show_length])
@@ -23,13 +23,13 @@ func TestMediaWikiClient_GetPageContent(t *testing.T) {
 
 func TestMediaWikiClient_ParseCharacterFromContent(t *testing.T) {
 
-	content, err := wiki_client.GetPageContent(character_name)
+	content, err := client.GetPageContent(character_name)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	character, err := wiki_client.ParseCharacterFromContent(character_name, content)
+	character, err := client.ParseCharacterFromContent(character_name, content)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
@@ -43,7 +43,10 @@ func TestMediaWikiClient_ParseCharacterFromContent(t *testing.T) {
 }
 
 func TestMediaWikiClient_FetchAllCharacters(t *testing.T) {
-	characters, err := wiki_client.FetchAllCharacters()
+
+	t.Skip("Skipping expensive test") // REMOVE TO DO TEST
+
+	characters, err := client.FetchAllCharacters()
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)

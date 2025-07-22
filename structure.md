@@ -2,51 +2,40 @@
 
 ```
 falloutdle/
-├── server/
-│       └── main.go                 # Main
+│
 ├── internal/
-│   ├── api/
-│   │   ├── handlers/
-│   │   │   ├── character.go        # characters handling
-│   │   │   ├── game.go            # daily game handling
-│   │   │   └── health.go          # Health check
-│   │   ├── middleware/
-│   │   │   ├── cors.go
-│   │   │   ├── logging.go
-│   │   │   └── ratelimit.go
-│   │   └── routes/
-│   │       └── routes.go          # Routes configuration
-│   ├── domain/
-│   │   ├── models/
-│   │   │   ├── character.go       # Database
-│   │   │   ├── game.go
-│   │   │   └── guess.go
-│   │   └── services/
-│   │       ├── character_service.go
-│   │       ├── game_service.go
-│   │       └── scraper_service.go
-│   ├── infrastructure/
-│   │   ├── database/
-│   │   │   ├── migrations/
-│   │   │   ├── connection.go
-│   │   │   └── queries.go
-│   │   ├── external/
-│   │   │   └── wiki_client.go     #  MediaWiki API Client
-│   │   └── cache/
-│   │       └── redis.go
-│   └── config/
-│       └── config.go              # Configuration
-├── pkg/
-│   ├── logger/
-│       └── logger.go              # Custom Logger
-├── data/
-│   └── characters.json            # Données récupérées
-├── docker/
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── .env.example
+│   │
+│   ├── character/           # domain
+│   │   ├── model.go         # Character struct
+│   │   ├── repository.go    # database interface + GORM
+│   │   ├── gamecode.go      # fallout games code references
+│   │   └── service.go       # character logic interface
+│   │
+│   └── database/
+│       └── connection.go    # GORM database connection
+│
+├── external/
+│   │
+│   ├── wiki/                # fandom wiki api
+│   │   ├── client.go        # wiki api client
+│   │   └── response.go      # wiki api response
+│   │
+│   └── game/               
+│       └── game.go          # game logic
+│
+├── tests/
+│   ├── database_test.go     # database communication test
+│   └── wiki_test.go         # wiki api requests test
+│
+├── server/
+│   └── main.go              # main server
+│
+├── pkg/                    
+│   └── utils/               # public code
+│
+├── .env.example             # example attributs to use in env
 ├── .gitignore
-├── go.mod
-├── go.sum
-└── README.md
+├── go.mod                   # depedancies
+├── go.sum                   # dependancies checksums
+└── README.md                # Docs
 ```

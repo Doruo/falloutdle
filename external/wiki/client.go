@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/doruo/falloutdle/src/domains/models"
+	"github.com/doruo/falloutdle/internal/character"
 )
 
 // Fallout Fandom Wiki API URL
@@ -80,7 +80,7 @@ func (w *WikiClient) GetPageContent(title string) (string, error) {
 // /--- PARSE FUNCTIONS ---/
 
 // ParseCharacterFromContent parses MediaWiki content to extract character information
-func (w *WikiClient) ParseCharacterFromContent(title, content string) (*models.Character, error) {
+func (w *WikiClient) ParseCharacterFromContent(title, content string) (*character.Character, error) {
 	// Find the infobox character section
 	infoboxRegex := regexp.MustCompile(`(?s)\{\{Infobox character(.*?)\}\}`)
 	matches := infoboxRegex.FindStringSubmatch(content)
@@ -91,7 +91,7 @@ func (w *WikiClient) ParseCharacterFromContent(title, content string) (*models.C
 
 	infoboxContent := matches[1]
 
-	character := &models.Character{
+	c := &character.Character{
 		WikiTitle: title,
 		Name:      title, // Default name, will be overridden if 'name' field exists
 	}
@@ -124,39 +124,39 @@ func (w *WikiClient) ParseCharacterFromContent(title, content string) (*models.C
 		// Parse different fields
 		switch key {
 		case "name":
-			character.Name = w.cleanWikiText(value)
+			c.Name = w.cleanWikiText(value)
 		case "games":
-			character.Games = models.NormalizeGameCodes(value)
+			c.Games = character.NormalizeGameCodes(value)
 		case "mentions":
-			character.Mentions = models.NormalizeGameCodes(value)
+			c.Mentions = character.NormalizeGameCodes(value)
 		case "race":
-			character.Race = w.cleanWikiText(value)
+			c.Race = w.cleanWikiText(value)
 		case "gender":
-			character.Gender = w.cleanWikiText(value)
+			c.Gender = w.cleanWikiText(value)
 		case "status":
-			character.Status = w.cleanWikiText(value)
+			c.Status = w.cleanWikiText(value)
 		case "affiliation":
-			character.Affiliation = w.parseAffiliation(value)
+			c.Affiliation = w.parseAffiliation(value)
 		case "role":
-			character.Role = w.cleanWikiText(value)
+			c.Role = w.cleanWikiText(value)
 		case "titles":
-			character.Titles = w.parseTitles(value)
+			c.Titles = w.parseTitles(value)
 		case "image":
-			character.ImageURL = w.parseImageURL(value)
+			c.ImageURL = w.parseImageURL(value)
 		}
 	}
 
 	// Set main game
-	character.MainGame = character.GetMainGame()
+	c.MainGame = c.GetMainGame()
 
-	return character, nil
+	return c, nil
 }
 
 // /---- FETCH FUNCTIONS -----/
 
-func (w *WikiClient) FetchAllCharacters() (characters []*models.Character, e error) {
+func (w *WikiClient) FetchAllCharacters() (characters []*character.Character, e error) {
 
-	for _, game_code := range models.AllGameCodes {
+	for _, game_code := range character.AllGameCodes {
 		temp_characters, err := w.FetchCharactersByGame(game_code)
 
 		// Error case
@@ -175,7 +175,7 @@ func (w *WikiClient) FetchAllCharacters() (characters []*models.Character, e err
 	return
 }
 
-func (w *WikiClient) FetchCharactersByGame(game models.GameCode) ([]*models.Character, error) {
+func (w *WikiClient) FetchCharactersByGame(game character.GameCode) ([]*character.Character, error) {
 	categoryTitle := fmt.Sprintf("Category:%s_characters", strings.ReplaceAll(game.GameFullName(), " ", "_"))
 
 	params := url.Values{}
@@ -185,7 +185,7 @@ func (w *WikiClient) FetchCharactersByGame(game models.GameCode) ([]*models.Char
 	params.Set("cmtitle", categoryTitle)
 	params.Set("cmlimit", "500")
 
-	var characters []*models.Character
+	var characters []*character.Character
 	cmContinue := ""
 
 	for {

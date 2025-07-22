@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 
-	"github.com/doruo/falloutdle/src/domains/models"
+	"github.com/doruo/falloutdle/internal/character"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -21,7 +21,7 @@ func SetupDatabase() *gorm.DB {
 	}
 
 	// Auto-migration
-	err = db.AutoMigrate(&models.Character{})
+	err = db.AutoMigrate(&character.Character{})
 	if err != nil {
 		log.Fatal("Failed to migrate:", err)
 	}
