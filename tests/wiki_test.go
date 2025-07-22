@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/doruo/falloutdle/src/domains/models/wiki"
+	"github.com/doruo/falloutdle/src/infrastructure/external/wiki"
 )
 
 var wiki_client = wiki.NewWikiClient()
