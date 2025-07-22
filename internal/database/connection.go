@@ -1,7 +1,9 @@
 package database
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/doruo/falloutdle/internal/character"
 	"gorm.io/driver/postgres"
@@ -10,8 +12,15 @@ import (
 )
 
 func SetupDatabase() *gorm.DB {
-	// Database
-	dsn := "host=localhost user=username password=password dbname=falloutdle port=5432 sslmode=disable"
+	// Database connection
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_SSLMODE"),
+	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info), // Logs SQL (dev)

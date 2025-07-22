@@ -22,7 +22,7 @@ type Character struct {
 	MainGame    string   `json:"main_game" gorm:"size:100;index"` // Primary game of origin
 	ImageURL    string   `json:"image_url" gorm:"type:text"`
 
-	PlayedAt *time.Time `json:"played_at,omitempty" gorm:"index"` // Guess played date
+	PlayedAt *time.Time `json:"played_at,omitempty" gorm:"index"` // last played date
 }
 
 // NewCharacter creates a new Character instance
