@@ -12,7 +12,7 @@ var content_show_length = 50 // Set value > 0 to display response content
 
 func TestMediaWikiClient_GetPageContent(t *testing.T) {
 
-	if content, err := client.GetPageContent(character_name); err != nil {
+	if content, err := client.FetchPageContent(character_name); err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	} else if len(content) > 0 {
 		t.Logf("%s...\n", content[:content_show_length])
@@ -23,7 +23,7 @@ func TestMediaWikiClient_GetPageContent(t *testing.T) {
 
 func TestMediaWikiClient_ParseCharacterFromContent(t *testing.T) {
 
-	content, err := client.GetPageContent(character_name)
+	content, err := client.FetchPageContent(character_name)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
