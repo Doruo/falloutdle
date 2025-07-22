@@ -11,7 +11,8 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func SetupDatabase() *gorm.DB {
+// NewDatabaseConnection creates and returns a new database connection instance
+func NewDatabaseConnection() (db *gorm.DB) {
 	// Database connection
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
@@ -23,8 +24,9 @@ func SetupDatabase() *gorm.DB {
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info), // Logs SQL (dev)
+		Logger: logger.Default.LogMode(logger.Info), // Logs SQL (only on dev)
 	})
+
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
@@ -35,5 +37,5 @@ func SetupDatabase() *gorm.DB {
 		log.Fatal("Failed to migrate:", err)
 	}
 
-	return db
+	return
 }
