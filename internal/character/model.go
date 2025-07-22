@@ -6,19 +6,28 @@ import (
 	"time"
 )
 
+var playableCharacters = []string{
+	"Vault Dweller",
+	"Chosen One",
+	"Lone Wanderer",
+	"Courier",
+	"Sole Survivor",
+	"Resident",
+}
+
 // Character represents a Fallout character with all relevant game information
 type Character struct {
-	ID          uint     `json:"id" gorm:"primaryKey"`
+	ID          uint     `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name        string   `json:"name" gorm:"size:255;index"`
 	WikiTitle   string   `json:"wiki_title" gorm:"size:500;uniqueIndex"` // Original wiki page title
-	Games       []string `json:"games" gorm:"type:json"`                 // Main games where character appears
-	Mentions    []string `json:"mentions" gorm:"type:json"`              // Games where character is mentioned
+	Games       []string `json:"games" gorm:"serializer:json"`           // Main games where character appears
+	Mentions    []string `json:"mentions" gorm:"serializer:json"`        // Games where character is mentioned
 	Race        string   `json:"race" gorm:"size:100"`
 	Gender      string   `json:"gender" gorm:"size:20"`
 	Status      string   `json:"status" gorm:"size:50"` // Alive, Deceased, Unknown
-	Affiliation []string `json:"affiliation" gorm:"type:json"`
+	Affiliation []string `json:"affiliation" gorm:"serializer:json"`
 	Role        string   `json:"role" gorm:"size:255"`
-	Titles      []string `json:"titles" gorm:"type:json"`
+	Titles      []string `json:"titles" gorm:"serializer:json"`
 	MainGame    string   `json:"main_game" gorm:"size:100;index"` // Primary game of origin
 	ImageURL    string   `json:"image_url" gorm:"type:text"`
 
@@ -39,21 +48,11 @@ func NewCharacter(name, wikiTitle string) *Character {
 
 // IsPlayable determines if character is playable (like Vault Dweller)
 func (c *Character) IsPlayable() bool {
-	playableCharacters := []string{
-		"Vault Dweller",
-		"Chosen One",
-		"Lone Wanderer",
-		"Courier",
-		"Sole Survivor",
-		"Resident",
-	}
-
 	for _, playable := range playableCharacters {
 		if strings.Contains(c.Name, playable) {
 			return true
 		}
 	}
-
 	return false
 }
 
