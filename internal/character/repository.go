@@ -96,6 +96,31 @@ func (r *CharacterRepository) GetByName(name string) (*Character, error) {
 	return &character, nil
 }
 
+// /----- UPDATE -----/
+
+// Update modifies an existing character
+func (r *CharacterRepository) Update(character *Character) error {
+
+	if character == nil {
+		return errors.New("character cannot be nil")
+	}
+
+	if character.ID == 0 {
+		return errors.New("character ID is required for update")
+	}
+
+	result := r.db.Save(character)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("character not found")
+	}
+
+	return nil
+}
+
 // /----- DELETE -----/
 
 // Delete removes a character by ID
