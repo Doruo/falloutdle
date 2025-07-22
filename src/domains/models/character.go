@@ -1,34 +1,40 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // Character represents a Fallout character with all relevant game information
 type Character struct {
-	ID          int      `json:"id" db:"id"`
-	Name        string   `json:"name" db:"name"`
-	WikiTitle   string   `json:"wiki_title" db:"wiki_title"` // Original wiki page title
-	Games       []string `json:"games" db:"games"`           // Main games where character appears
-	Mentions    []string `json:"mentions" db:"mentions"`     // Games where character is mentioned
-	Race        string   `json:"race" db:"race"`
-	Gender      string   `json:"gender" db:"gender"`
-	Status      string   `json:"status" db:"status"` // Alive, Deceased, Unknown
-	Affiliation []string `json:"affiliation" db:"affiliation"`
-	Role        string   `json:"role" db:"role"`
-	Titles      []string `json:"titles" db:"titles"`
-	MainGame    string   `json:"main_game" db:"main_game"` // Primary game of origin
-	ImageURL    string   `json:"image_url" db:"image_url"`
+	ID          uint     `json:"id" gorm:"primaryKey"`
+	Name        string   `json:"name" gorm:"size:255;index"`
+	WikiTitle   string   `json:"wiki_title" gorm:"size:500;uniqueIndex"` // Original wiki page title
+	Games       []string `json:"games" gorm:"type:json"`                 // Main games where character appears
+	Mentions    []string `json:"mentions" gorm:"type:json"`              // Games where character is mentioned
+	Race        string   `json:"race" gorm:"size:100"`
+	Gender      string   `json:"gender" gorm:"size:20"`
+	Status      string   `json:"status" gorm:"size:50"` // Alive, Deceased, Unknown
+	Affiliation []string `json:"affiliation" gorm:"type:json"`
+	Role        string   `json:"role" gorm:"size:255"`
+	Titles      []string `json:"titles" gorm:"type:json"`
+	MainGame    string   `json:"main_game" gorm:"size:100;index"` // Primary game of origin
+	ImageURL    string   `json:"image_url" gorm:"type:text"`
+
+	PlayedAt *time.Time `json:"played_at,omitempty" gorm:"index"` // Guess played date
 }
 
-// GetMainGame returns the primary game of origin (first in games list)
-func (c *Character) GetMainGame() string {
-	if len(c.Games) > 0 {
-		return c.Games[0]
+// NewCharacter creates a new Character instance
+func NewCharacter(name, wikiTitle string) *Character {
+	return &Character{
+		Name:        name,
+		WikiTitle:   wikiTitle,
+		Games:       make([]string, 0),
+		Mentions:    make([]string, 0),
+		Affiliation: make([]string, 0),
+		Titles:      make([]string, 0),
 	}
-	return ""
 }
 
 // IsPlayable determines if character is playable (like Vault Dweller)
@@ -69,6 +75,76 @@ func (c *Character) CleanRace() string {
 
 	return race
 }
+
+// /----- GETTER FUNCTIONS -----/
+
+// GetMainGame returns the primary game of origin (first in games list)
+func (c *Character) GetMainGame() string {
+	if len(c.Games) > 0 {
+		return c.Games[0]
+	}
+	return ""
+}
+
+// /----- SETTER FUNCTIONS -----/
+
+func (c *Character) SetRace(race string) *Character {
+	c.Race = race
+	return c
+}
+
+func (c *Character) SetGender(gender string) *Character {
+	c.Gender = gender
+	return c
+}
+
+func (c *Character) SetStatus(status string) *Character {
+	c.Status = status
+	return c
+}
+
+func (c *Character) SetRole(role string) *Character {
+	c.Role = role
+	return c
+}
+
+func (c *Character) SetMainGame(game string) *Character {
+	c.MainGame = game
+	return c
+}
+
+func (c *Character) SetImageURL(url string) *Character {
+	c.ImageURL = url
+	return c
+}
+
+func (c *Character) AddGame(game string) *Character {
+	c.Games = append(c.Games, game)
+	return c
+}
+
+func (c *Character) AddMention(mention string) *Character {
+	c.Mentions = append(c.Mentions, mention)
+	return c
+}
+
+func (c *Character) AddAffiliation(affiliation string) *Character {
+	c.Affiliation = append(c.Affiliation, affiliation)
+	return c
+}
+
+func (c *Character) AddTitle(title string) *Character {
+	c.Titles = append(c.Titles, title)
+	return c
+}
+
+func (c *Character) UpdateAsPlayed() *Character {
+	now := time.Now()
+	c.PlayedAt = &now
+	return c
+}
+
+// /----- STRING FUNCTIONS -----/
 
 // String implements the fmt.Stringer interface for Character
 // This method provides a readable text representation of the character
@@ -211,17 +287,4 @@ func (c *Character) StringCompact() string {
 	}
 
 	return fmt.Sprintf("Character{%s}", strings.Join(parts, ", "))
-}
-
-// StringJSON returns a formatted JSON representation (useful for debugging)
-func (c *Character) StringJSON() string {
-	if c == nil {
-		return "null"
-	}
-
-	jsonBytes, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		return fmt.Sprintf("Character{JSON marshal error: %v}", err)
-	}
-	return string(jsonBytes)
 }
