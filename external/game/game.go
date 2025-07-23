@@ -1,28 +1,15 @@
 package game
 
-import (
-	"time"
+import "time"
 
-	"github.com/doruo/falloutdle/internal/character"
-)
-
-// GameState represents a current game state
-type GameState struct {
+// Game represents a current game state
+type Game struct {
 	Date time.Time `json:"date"`
 }
 
-// gameService implémentation concrète
-type gameService struct {
-	characterService character.Service
-	currentGame      *GameState
-}
+// /----- UTILITY FUNCTIONS -----/
 
-// GetTodayGame récupère ou initialise la partie du jour
-func (gs *gameService) GetTodayGame() (*GameState, error) {
-
-}
-
-// GetGameState retourne l'état actuel du jeu
-func (gs *gameService) GetGameState() *GameState {
-	return gs.currentGame
+// getTodayDate returns today's date in 24h UTC format.
+func getTodayDate() time.Time {
+	return time.Now().UTC().Truncate(24 * time.Hour)
 }
