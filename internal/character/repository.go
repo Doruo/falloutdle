@@ -27,6 +27,27 @@ func (r *CharacterRepository) Add(character *Character) error {
 	return nil
 }
 
+// WARNING: VERY EXPENSIVE FUNCTION FOR WIKI API AND DATABASE,
+// DO NOT USE IT WITHOUT CAUTION !
+// AddAllCharactersFromWiki creates all new characters record in the database from Wiki
+/*
+func AddAllCharactersFromWiki() {
+
+	db := database.NewDatabaseConnection()
+	repo := NewCharacterRepository(db)
+	client := wiki.NewWikiClient()
+
+	chars, err := client.FetchAllCharacters()
+
+	if err != nil {
+		fmt.Print("Error during fetch: %t", err)
+	}
+
+	for _, character := range chars {
+		repo.Add(character)
+	}
+}*/
+
 // /----- SELECT -----/
 
 // GetAll retrieves all characters with optional pagination

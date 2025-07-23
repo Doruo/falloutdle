@@ -59,6 +59,8 @@ func (w *WikiClient) FetchCharacterByName(name string) (*character.Character, er
 	return c, nil
 }
 
+// WARNING: VERY EXPENSIVE FUNCTION FOR WIKI API AND DATABASE
+// FetchAllCharacters retrieves the raw content of all wiki page and returns a character slice
 func (w *WikiClient) FetchAllCharacters() (characters []*character.Character, e error) {
 
 	for _, game_code := range character.AllGameCodes {
@@ -200,6 +202,7 @@ func (w *WikiClient) FetchPageContent(title string) (string, error) {
 
 // ParseCharacterFromContent parses MediaWiki content to extract character information
 func (w *WikiClient) ParseCharacterFromContent(title, content string) (*character.Character, error) {
+
 	// Find the infobox character section
 	infoboxRegex := regexp.MustCompile(`(?s)\{\{Infobox character(.*?)\}\}`)
 	matches := infoboxRegex.FindStringSubmatch(content)
