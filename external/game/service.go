@@ -4,13 +4,20 @@ import (
 	"github.com/doruo/falloutdle/internal/character"
 )
 
-// game logic service
+// Game logic service
 type GameService struct {
 	characterService character.Service
 	currentGame      *Game
 }
 
-// /----- CREATE -----/
+func NewGameService(cs character.Service) *GameService {
+	return &GameService{
+		characterService: cs,
+		currentGame:      nil,
+	}
+}
+
+// /----- LOGIC FUNCTIONS -----/
 
 // CreateTodayGame creates a new game for today from a RandomCharacter
 func (gs *GameService) CreateTodayGame() (*Game, error) {
@@ -29,11 +36,10 @@ func (gs *GameService) CreateTodayGame() (*Game, error) {
 
 	// Marks character or update played date
 	gs.characterService.UpdateAsPlayed(character.ID)
-
 	return NewGame(*character), nil
 }
 
-// /----- GET -----/
+// /----- GET FUNCTIONS -----/
 
 // GetTodayGame
 func (gs *GameService) GetTodayGame() (*Game, error) {
