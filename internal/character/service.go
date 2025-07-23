@@ -8,19 +8,19 @@ import (
 )
 
 // characterService implements Repository using CharacterRepository
-type CharacterService struct {
-	repo *CharacterRepository
+type Service struct {
+	repo *Repository
 }
 
 // NewCharacterService creates a new character service
-func NewCharacterService(repo *CharacterRepository) *CharacterService {
-	return &CharacterService{repo: repo}
+func NewCharacterService(repo *Repository) *Service {
+	return &Service{repo: repo}
 }
 
 // /----- GET FUNCTIONS -----/
 
 // GetByID retrieves a character by ID
-func (s *CharacterService) GetByID(id int) (*Character, error) {
+func (s *Service) GetByID(id int) (*Character, error) {
 
 	if id <= 0 {
 		return nil, errors.New("invalid ID")
@@ -35,7 +35,7 @@ func (s *CharacterService) GetByID(id int) (*Character, error) {
 }
 
 // GetAllCharacters retrieves all valid characters for the game
-func (s *CharacterService) GetAllCharacters() ([]Character, error) {
+func (s *Service) GetAllCharacters() ([]Character, error) {
 
 	characters, err := s.repo.GetAll(0, 0)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *CharacterService) GetAllCharacters() ([]Character, error) {
 }
 
 // GetRandomCharacter selects a random character
-func (s *CharacterService) GetRandomCharacter() (*Character, error) {
+func (s *Service) GetRandomCharacter() (*Character, error) {
 
 	characters, err := s.GetAllCharacters()
 	if err != nil {
@@ -73,7 +73,7 @@ func (s *CharacterService) GetRandomCharacter() (*Character, error) {
 // /----- UTILITY FUNCTIONS -----/
 
 // MarkAsPlayed marks a character as played
-func (s *CharacterService) MarkAsPlayed(characterID int) error {
+func (s *Service) MarkAsPlayed(characterID int) error {
 
 	if characterID <= 0 {
 		return errors.New("invalid character ID")
@@ -95,7 +95,7 @@ func (s *CharacterService) MarkAsPlayed(characterID int) error {
 }
 
 // isValidForGame checks if a character is valid for the game
-func (s *CharacterService) isValidForGame(char *Character) bool {
+func (s *Service) isValidForGame(char *Character) bool {
 
 	if char.Name == "" || char.Race == "" || char.Gender == "" {
 		return false

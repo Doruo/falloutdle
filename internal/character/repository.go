@@ -6,18 +6,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type CharacterRepository struct {
+type Repository struct {
 	db *gorm.DB
 }
 
-func NewCharacterRepository(db *gorm.DB) *CharacterRepository {
-	return &CharacterRepository{db: db}
+func NewCharacterRepository(db *gorm.DB) *Repository {
+	return &Repository{db: db}
 }
 
 // /----- CREATE -----/
 
 // Add creates a new character record in the database
-func (r *CharacterRepository) Add(character *Character) error {
+func (r *Repository) Add(character *Character) error {
 
 	result := r.db.Create(character)
 	if result.Error != nil {
@@ -51,7 +51,7 @@ func AddAllCharactersFromWiki() {
 // /----- SELECT -----/
 
 // GetAll retrieves all characters with optional pagination
-func (r *CharacterRepository) GetAll(limit, offset int) ([]Character, error) {
+func (r *Repository) GetAll(limit, offset int) ([]Character, error) {
 	var characters []Character
 
 	query := r.db
@@ -71,7 +71,7 @@ func (r *CharacterRepository) GetAll(limit, offset int) ([]Character, error) {
 }
 
 // GetByID retrieves a character by its ID
-func (r *CharacterRepository) GetByID(id uint) (*Character, error) {
+func (r *Repository) GetByID(id uint) (*Character, error) {
 
 	var character Character
 	result := r.db.First(&character, id)
@@ -87,7 +87,7 @@ func (r *CharacterRepository) GetByID(id uint) (*Character, error) {
 }
 
 // GetByWikiTitle retrieves a character by its WikiTitle
-func (r *CharacterRepository) GetByWikiTitle(wikiTitle string) (*Character, error) {
+func (r *Repository) GetByWikiTitle(wikiTitle string) (*Character, error) {
 	var character Character
 
 	result := r.db.Where("wiki_title = ?", wikiTitle).First(&character)
@@ -102,7 +102,7 @@ func (r *CharacterRepository) GetByWikiTitle(wikiTitle string) (*Character, erro
 }
 
 // GetByName retrieves a character by its name
-func (r *CharacterRepository) GetByName(name string) (*Character, error) {
+func (r *Repository) GetByName(name string) (*Character, error) {
 
 	var character Character
 	result := r.db.Where("name = ?", name).First(&character)
@@ -120,7 +120,7 @@ func (r *CharacterRepository) GetByName(name string) (*Character, error) {
 // /----- UPDATE -----/
 
 // Update modifies an existing character
-func (r *CharacterRepository) Update(character *Character) error {
+func (r *Repository) Update(character *Character) error {
 
 	if character == nil {
 		return errors.New("character cannot be nil")
@@ -145,7 +145,7 @@ func (r *CharacterRepository) Update(character *Character) error {
 // /----- DELETE -----/
 
 // Delete removes a character by ID
-func (r *CharacterRepository) DeleteByID(id uint) error {
+func (r *Repository) DeleteByID(id uint) error {
 	if id == 0 {
 		return errors.New("invalid character ID")
 	}
@@ -163,7 +163,7 @@ func (r *CharacterRepository) DeleteByID(id uint) error {
 }
 
 // DeleteByWikiTitle removes a character by WikiTitle
-func (r *CharacterRepository) DeleteByWikiTitle(wikiTitle string) error {
+func (r *Repository) DeleteByWikiTitle(wikiTitle string) error {
 	if wikiTitle == "" {
 		return errors.New("wiki title cannot be empty")
 	}
