@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/doruo/falloutdle/src/domains/models"
+	"github.com/doruo/falloutdle/internal/character"
 )
 
 // Fallout Fandom Wiki API URL
@@ -22,45 +22,6 @@ var wiki_api_url = "https://fallout.fandom.com/api.php"
 type WikiClient struct {
 	baseURL    string
 	httpClient *http.Client
-}
-
-// WikiResponse represents the MediaWiki API response structure
-type WikiResponse struct {
-	Query struct {
-		Pages map[string]WikiPage `json:"pages"`
-	} `json:"query"`
-}
-
-// WikiPage represents a single wiki page
-type WikiPage struct {
-	PageID    int            `json:"pageid"`
-	Title     string         `json:"title"`
-	Revisions []WikiRevision `json:"revisions"`
-}
-
-// WikiRevision represents a page revision
-type WikiRevision struct {
-	Slots struct {
-		Main struct {
-			ContentFormat string `json:"contentformat"`
-			ContentModel  string `json:"contentmodel"`
-			Content       string `json:"*"`
-		} `json:"main"`
-	} `json:"slots"`
-}
-
-// CategoryResponse represents the category members API response response when querying category members
-type CategoryResponse struct {
-	Query struct {
-		CategoryMembers []CategoryMember `json:"categorymembers"`
-	} `json:"query"`
-}
-
-// CategoryMember represents a member of a category
-type CategoryMember struct {
-	PageID int    `json:"pageid"`
-	Title  string `json:"title"`
-	NS     int    `json:"ns"`
 }
 
 // /----- FUNCTIONS -----/
@@ -76,126 +37,33 @@ func NewWikiClient() *WikiClient {
 	}
 }
 
-// GetPageContent retrieves the raw content of a wiki page
-func (w *WikiClient) GetPageContent(title string) (string, error) {
+// /---- FETCH FUNCTIONS -----/
 
-	params := url.Values{}
-	params.Add("action", "query")
-	params.Add("prop", "revisions")
-	params.Add("rvprop", "content")
-	params.Add("rvslots", "main")
-	params.Add("format", "json")
-	params.Add("titles", title)
+// FetchCharacterByName retrieves the raw content of a wiki page and returns a character struct
+func (w *WikiClient) FetchCharacterByName(name string) (*character.Character, error) {
 
-	// Full wiki api request parse
-	fullURL := w.baseURL + "?" + params.Encode()
+	content, err := w.FetchPageContent(name)
 
-	// HTTP request to wiki api
-	resp, err := w.httpClient.Get(fullURL)
 	if err != nil {
-		return "", fmt.Errorf("http request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	var wikiResp WikiResponse
-	if err := json.NewDecoder(resp.Body).Decode(&wikiResp); err != nil {
-		return "", fmt.Errorf("json decode failed: %w", err)
+		log.Printf("Error while fetching page content for %s: %v", name, err)
+		return nil, err
 	}
 
-	// Extract content from response first page
-	for _, page := range wikiResp.Query.Pages {
+	c, err := w.ParseCharacterFromContent(name, content)
 
-		if page.PageID == -1 {
-			return "", fmt.Errorf("page not found: %s", title)
-		}
-		if len(page.Revisions) > 0 {
-			return page.Revisions[0].Slots.Main.Content, nil
-		}
+	if err != nil {
+		log.Printf("Error while parsing character %s: %v", name, err)
+		return nil, err
 	}
 
-	return "", fmt.Errorf("no content found for page: %s", title)
+	return c, nil
 }
 
-// /--- PARSE FUNCTIONS ---/
+// WARNING: VERY EXPENSIVE FUNCTION FOR WIKI API AND DATABASE
+// FetchAllCharacters retrieves the raw content of all wiki page and returns a character slice
+func (w *WikiClient) FetchAllCharacters() (characters []*character.Character, e error) {
 
-// ParseCharacterFromContent parses MediaWiki content to extract character information
-func (w *WikiClient) ParseCharacterFromContent(title, content string) (*models.Character, error) {
-	// Find the infobox character section
-	infoboxRegex := regexp.MustCompile(`(?s)\{\{Infobox character(.*?)\}\}`)
-	matches := infoboxRegex.FindStringSubmatch(content)
-
-	if len(matches) < 1 {
-		return nil, fmt.Errorf("no character infobox found in page: %s", title)
-	}
-
-	infoboxContent := matches[1]
-
-	character := &models.Character{
-		WikiTitle: title,
-		Name:      title, // Default name, will be overridden if 'name' field exists
-	}
-
-	// Parse infobox fields
-	lines := strings.Split(infoboxContent, "\n")
-
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if !strings.HasPrefix(line, "|") {
-			continue
-		}
-
-		// Remove the | prefix and split by =
-		line = strings.TrimPrefix(line, "|")
-		parts := strings.SplitN(line, "=", 2)
-
-		if len(parts) != 2 {
-			continue
-		}
-
-		key := strings.TrimSpace(parts[0])
-		value := strings.TrimSpace(parts[1])
-
-		// Skip empty values
-		if value == "" {
-			continue
-		}
-
-		// Parse different fields
-		switch key {
-		case "name":
-			character.Name = w.cleanWikiText(value)
-		case "games":
-			character.Games = models.NormalizeGameCodes(value)
-		case "mentions":
-			character.Mentions = models.NormalizeGameCodes(value)
-		case "race":
-			character.Race = w.cleanWikiText(value)
-		case "gender":
-			character.Gender = w.cleanWikiText(value)
-		case "status":
-			character.Status = w.cleanWikiText(value)
-		case "affiliation":
-			character.Affiliation = w.parseAffiliation(value)
-		case "role":
-			character.Role = w.cleanWikiText(value)
-		case "titles":
-			character.Titles = w.parseTitles(value)
-		case "image":
-			character.ImageURL = w.parseImageURL(value)
-		}
-	}
-
-	// Set main game
-	character.MainGame = character.GetMainGame()
-
-	return character, nil
-}
-
-// /---- FETCH CHARACTERS -----/
-
-func (w *WikiClient) FetchAllCharacters() (characters []*models.Character, e error) {
-
-	for _, game_code := range models.AllGameCodes {
+	for _, game_code := range character.AllGameCodes {
 		temp_characters, err := w.FetchCharactersByGame(game_code)
 
 		// Error case
@@ -214,7 +82,7 @@ func (w *WikiClient) FetchAllCharacters() (characters []*models.Character, e err
 	return
 }
 
-func (w *WikiClient) FetchCharactersByGame(game models.GameCode) ([]*models.Character, error) {
+func (w *WikiClient) FetchCharactersByGame(game character.GameCode) ([]*character.Character, error) {
 	categoryTitle := fmt.Sprintf("Category:%s_characters", strings.ReplaceAll(game.GameFullName(), " ", "_"))
 
 	params := url.Values{}
@@ -224,7 +92,7 @@ func (w *WikiClient) FetchCharactersByGame(game models.GameCode) ([]*models.Char
 	params.Set("cmtitle", categoryTitle)
 	params.Set("cmlimit", "500")
 
-	var characters []*models.Character
+	var characters []*character.Character
 	cmContinue := ""
 
 	for {
@@ -266,7 +134,7 @@ func (w *WikiClient) FetchCharactersByGame(game models.GameCode) ([]*models.Char
 				continue
 			}
 
-			content, err := w.GetPageContent(member.Title)
+			content, err := w.FetchPageContent(member.Title)
 			if err != nil {
 				log.Printf("Failed to get content for %s: %v", member.Title, err)
 				continue
@@ -288,6 +156,122 @@ func (w *WikiClient) FetchCharactersByGame(game models.GameCode) ([]*models.Char
 	}
 
 	return characters, nil
+}
+
+// FetchPageContent retrieves the raw content of a wiki page
+func (w *WikiClient) FetchPageContent(title string) (string, error) {
+
+	params := url.Values{}
+	params.Add("action", "query")
+	params.Add("prop", "revisions")
+	params.Add("rvprop", "content")
+	params.Add("rvslots", "main")
+	params.Add("format", "json")
+	params.Add("titles", title)
+
+	// Full wiki api request parse
+	fullURL := w.baseURL + "?" + params.Encode()
+
+	// HTTP request to wiki api
+	resp, err := w.httpClient.Get(fullURL)
+	if err != nil {
+		return "", fmt.Errorf("http request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var wikiResp WikiResponse
+	if err := json.NewDecoder(resp.Body).Decode(&wikiResp); err != nil {
+		return "", fmt.Errorf("json decode failed: %w", err)
+	}
+
+	// Extract content from response first page
+	for _, page := range wikiResp.Query.Pages {
+
+		if page.PageID == -1 {
+			return "", fmt.Errorf("page not found: %s", title)
+		}
+		if len(page.Revisions) > 0 {
+			return page.Revisions[0].Slots.Main.Content, nil
+		}
+	}
+
+	return "", fmt.Errorf("no content found for page: %s", title)
+}
+
+// /--- PARSE FUNCTIONS ---/
+
+// ParseCharacterFromContent parses MediaWiki content to extract character information
+func (w *WikiClient) ParseCharacterFromContent(title, content string) (*character.Character, error) {
+
+	// Find the infobox character section
+	infoboxRegex := regexp.MustCompile(`(?s)\{\{Infobox character(.*?)\}\}`)
+	matches := infoboxRegex.FindStringSubmatch(content)
+
+	if len(matches) < 1 {
+		return nil, fmt.Errorf("no character infobox found in page: %s", title)
+	}
+
+	infoboxContent := matches[1]
+
+	c := &character.Character{
+		WikiTitle: title,
+		Name:      title, // Default name, will be overridden if 'name' field exists
+	}
+
+	// Parse infobox fields
+	lines := strings.Split(infoboxContent, "\n")
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "|") {
+			continue
+		}
+
+		// Remove the | prefix and split by =
+		line = strings.TrimPrefix(line, "|")
+		parts := strings.SplitN(line, "=", 2)
+
+		if len(parts) != 2 {
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+
+		// Skip empty values
+		if value == "" {
+			continue
+		}
+
+		// Parse different fields
+		switch key {
+		case "name":
+			c.Name = w.cleanWikiText(value)
+		case "games":
+			c.Games = character.NormalizeGameCodes(value)
+		case "mentions":
+			c.Mentions = character.NormalizeGameCodes(value)
+		case "race":
+			c.Race = w.cleanWikiText(value)
+		case "gender":
+			c.Gender = w.cleanWikiText(value)
+		case "status":
+			c.Status = w.cleanWikiText(value)
+		case "affiliation":
+			c.Affiliation = w.parseAffiliation(value)
+		case "role":
+			c.Role = w.cleanWikiText(value)
+		case "titles":
+			c.Titles = w.parseTitles(value)
+		case "image":
+			c.ImageURL = w.parseImageURL(value)
+		}
+	}
+
+	// Set main game
+	c.MainGame = c.GetMainGame()
+
+	return c, nil
 }
 
 // /---- UTILITY FUNCTIONS -----/
