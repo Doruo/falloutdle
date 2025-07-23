@@ -4,7 +4,7 @@ import "strings"
 
 // NormalizeString converts in string space int "_",
 // for example: "Roger Maxson" -> "Roger_Maxson"
-func NormalNormalizeStringizeString(str string) string {
+func NormalizeString(str string) string {
 	return strings.ReplaceAll(str, " ", "_")
 }
 
