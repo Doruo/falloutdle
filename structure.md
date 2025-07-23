@@ -6,7 +6,7 @@ falloutdle/
 ├── internal/
 │   │
 │   ├── character/           # domain
-│   │   ├── model.go         # Character struct
+│   │   ├── model.go         # character struct
 │   │   ├── repository.go    # database interface + GORM
 │   │   ├── gamecode.go      # fallout games code references
 │   │   └── service.go       # character logic interface
@@ -21,21 +21,23 @@ falloutdle/
 │   │   └── response.go      # wiki api response
 │   │
 │   └── game/               
-│       └── game.go          # game logic
+│       ├── model.go         # game structure
+│       └── service.go       # game logic
 │
 ├── tests/
 │   ├── database_test.go     # database communication test
 │   └── wiki_test.go         # wiki api requests test
 │
-├── server/
-│   └── main.go              # main server
+├── cmd/                     # entry point
+│   └── server/              
+│       └── main.go          # main server
 │
 ├── pkg/                    
-│   └── utils/               # public code
+│   └── libs/                # public packages
 │
 ├── .env.example             # example attributs to use in env
 ├── .gitignore
-├── go.mod                   # depedancies
-├── go.sum                   # dependancies checksums
-└── README.md                # Docs
+├── go.mod                   # projetct depedancies
+├── go.sum                   # project dependancies checksums
+└── README.md                # docs
 ```
