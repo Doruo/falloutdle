@@ -72,14 +72,14 @@ func (s *Service) GetRandomCharacter() (*Character, error) {
 
 // /----- UTILITY FUNCTIONS -----/
 
-// MarkAsPlayed marks a character as played
-func (s *Service) MarkAsPlayed(characterID int) error {
+// UpdateAsPlayed marks a character as played or updates his date if already played
+func (s *Service) UpdateAsPlayed(characterID uint) error {
 
 	if characterID <= 0 {
 		return errors.New("invalid character ID")
 	}
 
-	char, err := s.repo.GetByID(uint(characterID))
+	char, err := s.repo.GetByID(characterID)
 	if err != nil {
 		return fmt.Errorf("character not found: %w", err)
 	}
@@ -95,7 +95,7 @@ func (s *Service) MarkAsPlayed(characterID int) error {
 }
 
 // isValidForGame checks if a character is valid for the game
-func (s *Service) isValidForGame(char *Character) bool {
+func (s *Service) IsValidForGame(char *Character) bool {
 
 	if char.Name == "" || char.Race == "" || char.Gender == "" {
 		return false
@@ -105,11 +105,9 @@ func (s *Service) isValidForGame(char *Character) bool {
 		return false
 	}
 
-	// Exclude playable characters (they might be too obvious)
-	if char.IsPlayable() {
+	if char.IsPlayed() {
 		return false
 	}
-
 	return true
 }
 

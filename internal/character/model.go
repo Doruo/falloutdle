@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var playableCharacters = []string{
+var mainCharacters = []string{
 	"Vault Dweller",
 	"Chosen One",
 	"Lone Wanderer",
@@ -46,35 +46,6 @@ func NewCharacter(name, wikiTitle string) *Character {
 	}
 }
 
-// IsPlayable determines if character is playable (like Vault Dweller)
-func (c *Character) IsPlayable() bool {
-	for _, playable := range playableCharacters {
-		if strings.Contains(c.Name, playable) {
-			return true
-		}
-	}
-	return false
-}
-
-// CleanRace removes wiki markup from race field
-func (c *Character) CleanRace() string {
-	race := c.Race
-	// Remove wiki links [[Human]] -> Human
-	race = strings.ReplaceAll(race, "[[", "")
-	race = strings.ReplaceAll(race, "]]", "")
-
-	// Handle complex race descriptions
-	if strings.Contains(race, "<br") {
-		// Take first race if multiple are listed
-		parts := strings.Split(race, "<br")
-		if len(parts) > 0 {
-			race = strings.TrimSpace(parts[0])
-		}
-	}
-
-	return race
-}
-
 // /----- GETTER FUNCTIONS -----/
 
 // GetMainGame returns the primary game of origin (first in games list)
@@ -85,57 +56,21 @@ func (c *Character) GetMainGame() string {
 	return ""
 }
 
+// IsMainCharacter determines if character is playable (like Vault Dweller)
+func (c *Character) IsMainCharacter() bool {
+	for _, playable := range mainCharacters {
+		if strings.Contains(c.Name, playable) {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *Character) IsPlayed() bool {
+	return c.PlayedAt != nil
+}
+
 // /----- SETTER FUNCTIONS -----/
-
-func (c *Character) SetRace(race string) *Character {
-	c.Race = race
-	return c
-}
-
-func (c *Character) SetGender(gender string) *Character {
-	c.Gender = gender
-	return c
-}
-
-func (c *Character) SetStatus(status string) *Character {
-	c.Status = status
-	return c
-}
-
-func (c *Character) SetRole(role string) *Character {
-	c.Role = role
-	return c
-}
-
-func (c *Character) SetMainGame(game string) *Character {
-	c.MainGame = game
-	return c
-}
-
-func (c *Character) SetImageURL(url string) *Character {
-	c.ImageURL = url
-	return c
-}
-
-func (c *Character) AddGame(game string) *Character {
-	c.Games = append(c.Games, game)
-	return c
-}
-
-func (c *Character) AddMention(mention string) *Character {
-	c.Mentions = append(c.Mentions, mention)
-	return c
-}
-
-func (c *Character) AddAffiliation(affiliation string) *Character {
-	c.Affiliation = append(c.Affiliation, affiliation)
-	return c
-}
-
-func (c *Character) AddTitle(title string) *Character {
-	c.Titles = append(c.Titles, title)
-	return c
-}
 
 func (c *Character) UpdateAsPlayed() *Character {
 	now := time.Now()
