@@ -34,6 +34,20 @@ func (s *Service) GetByID(id int) (*Character, error) {
 	return char, nil
 }
 
+func (s *Service) GetByWikiTitle(title string) (*Character, error) {
+
+	if title == "" {
+		return nil, errors.New("invalid title")
+	}
+
+	char, err := s.repo.GetByWikiTitle(title)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get character from tite %d: %w", title, err)
+	}
+
+	return char, nil
+}
+
 // GetAllCharacters retrieves all valid characters for the game
 func (s *Service) GetAllCharacters() ([]Character, error) {
 
@@ -45,7 +59,7 @@ func (s *Service) GetAllCharacters() ([]Character, error) {
 	// Filter valid characters for the game
 	var gameCharacters []Character
 	for _, char := range characters {
-		if s.isValidForGame(&char) {
+		if s.IsValidForGame(&char) {
 			gameCharacters = append(gameCharacters, char)
 		}
 	}

@@ -48,7 +48,7 @@ func AddAllCharactersFromWiki() {
 	}
 }*/
 
-// /----- SELECT -----/
+// /----- READ -----/
 
 // GetAll retrieves all characters with optional pagination
 func (r *Repository) GetAll(limit, offset int) ([]Character, error) {
