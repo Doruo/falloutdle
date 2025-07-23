@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/doruo/falloutdle/internal/character"
+	"github.com/doruo/falloutdle/pkg/time"
 )
 
 // Game logic service
@@ -44,7 +45,7 @@ func (gs *GameService) CreateTodayGame() (*Game, error) {
 // GetTodayGame
 func (gs *GameService) GetTodayGame() (*Game, error) {
 
-	today := getTodayDate()
+	today := time.GetTodayDate()
 	// Already existing game today created
 	if gs.currentGame != nil && gs.currentGame.Date.Equal(today) {
 		return gs.currentGame, nil

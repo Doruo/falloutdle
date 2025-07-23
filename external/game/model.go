@@ -18,10 +18,3 @@ func NewGame(c character.Character) *Game {
 		Date:             time.Now(),
 	}
 }
-
-// /----- UTILITY FUNCTIONS -----/
-
-// getTodayDate returns today's date in 24h UTC format.
-func getTodayDate() time.Time {
-	return time.Now().UTC().Truncate(24 * time.Hour)
-}

@@ -3,8 +3,8 @@ package character
 import (
 	"errors"
 	"fmt"
-	"math/rand"
-	"time"
+
+	"github.com/doruo/falloutdle/pkg/random"
 )
 
 // characterService implements Repository using CharacterRepository
@@ -79,7 +79,7 @@ func (s *Service) GetRandomCharacter() (*Character, error) {
 		return nil, errors.New("no characters available")
 	}
 
-	randomIndex := newRandom().Intn(len(characters))
+	randomIndex := random.NewRandom().Intn(len(characters))
 
 	return &characters[randomIndex], nil
 }
@@ -123,11 +123,4 @@ func (s *Service) IsValidForGame(char *Character) bool {
 		return false
 	}
 	return true
-}
-
-// newRandom returns a new random using seed based on today date
-func newRandom() *rand.Rand {
-	seed := time.Now().UnixNano()
-	source := rand.NewSource(seed)
-	return rand.New(source)
 }
