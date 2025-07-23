@@ -42,7 +42,7 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 
 	char, err := s.repo.GetByWikiTitle(title)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get character from tite %d: %w", title, err)
+		return nil, fmt.Errorf("failed to get character from tite %s: %w", title, err)
 	}
 
 	return char, nil

@@ -36,7 +36,7 @@ func TestMediaWikiClient_ParseCharacterFromContent(t *testing.T) {
 	}
 
 	if len(content) > 0 {
-		t.Log(character.StringCompact())
+		t.Log(character.String())
 	} else {
 		t.Fatalf("No content found")
 	}
