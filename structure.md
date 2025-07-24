@@ -5,39 +5,42 @@ falloutdle/
 │
 ├── internal/
 │   │
-│   ├── character/           # domain
-│   │   ├── model.go         # character struct
-│   │   ├── repository.go    # database interface + GORM
-│   │   ├── gamecode.go      # fallout games code references
-│   │   └── service.go       # character logic interface
+│   ├── character/              # domain
+│   │   ├── model.go            # character struct
+│   │   ├── repository.go       # database interface + GORM
+│   │   ├── gamecode.go         # fallout games code references
+│   │   └── service.go          # character logic interface
 │   │
 │   └── database/
-│       └── connection.go    # GORM database connection
+│       └── connection.go       # GORM database connection
 │
 ├── external/
 │   │
-│   ├── wiki/                # fandom wiki api
-│   │   ├── client.go        # wiki api client
-│   │   └── response.go      # wiki api response
+│   ├── wiki/                   # fandom wiki api
+│   │   ├── client.go           # wiki api client
+│   │   └── response.go         # wiki api response
 │   │
 │   └── game/               
-│       ├── model.go         # game structure
-│       └── service.go       # game logic
+│       ├── model.go            # game structure
+│       └── service.go          # game logic
 │
 ├── tests/
-│   ├── database_test.go     # database communication test
-│   └── wiki_test.go         # wiki api requests test
+│   ├── database_test.go        # database communication test
+│   └── wiki_test.go            # wiki api requests test
 │
-├── cmd/                     # entry point
+├── cmd/                        # entry point
 │   └── server/              
-│       └── main.go          # main server
+│       ├── handlers/           # HTTP handle
+│       │    ├── handler.go     # wiki api requests test
+│       │    └── routes.go      # main server
+│       └── main.go             # main server
 │
 ├── pkg/                    
-│   └── libs/                # public packages
+│   └── libs/                   # public packages
 │
-├── .env.example             # example attributs to use in env
+├── .env.example                # example attributs to use in env
 ├── .gitignore
-├── go.mod                   # projetct depedancies
-├── go.sum                   # project dependancies checksums
-└── README.md                # docs
+├── go.mod                      # projetct depedancies
+├── go.sum                      # project dependancies checksums
+└── README.md                   # docs
 ```
