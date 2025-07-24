@@ -1,9 +1,23 @@
 package game
 
 import (
+	"time"
+
 	"github.com/doruo/falloutdle/internal/character"
-	"github.com/doruo/falloutdle/pkg/time"
 )
+
+// Game represents a current game state
+type Game struct {
+	CurrentCharacter character.Character
+	Date             time.Time `json:"date"`
+}
+
+func NewGame(c character.Character) *Game {
+	return &Game{
+		CurrentCharacter: c,
+		Date:             time.Now(),
+	}
+}
 
 // Game logic service
 type GameService struct {
@@ -42,13 +56,34 @@ func (gs *GameService) CreateTodayGame() (*Game, error) {
 
 // /----- GET FUNCTIONS -----/
 
-// GetTodayGame
+// GetTodayGame returns today current game.
+// Creates a new one if none found
 func (gs *GameService) GetTodayGame() (*Game, error) {
 
-	today := time.GetTodayDate()
+	today := getTodayDate()
 	// Already existing game today created
 	if gs.currentGame != nil && gs.currentGame.Date.Equal(today) {
 		return gs.currentGame, nil
 	}
 	return gs.CreateTodayGame()
+}
+
+// GetTodayCharacter returns today current character.
+// Creates a new one if none found
+func (gs *GameService) GetTodayCharacter() (*character.Character, error) {
+
+	game, err := gs.GetTodayGame()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &game.CurrentCharacter, nil
+}
+
+// /----- UTILITY FUNCTIONS -----/
+
+// getTodayDate returns today's date in 24h UTC format.
+func getTodayDate() time.Time {
+	return time.Now().UTC().Truncate(24 * time.Hour)
 }
