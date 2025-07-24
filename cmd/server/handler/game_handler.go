@@ -11,9 +11,9 @@ type GameHandler struct {
 	gameService *game.GameService
 }
 
-func NewGameHandler(gs *game.GameService) *GameHandler {
+func NewGameHandler() *GameHandler {
 	return &GameHandler{
-		gameService: gs,
+		gameService: game.NewGameService(),
 	}
 }
 

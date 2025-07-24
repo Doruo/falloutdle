@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/doruo/falloutdle/internal/character"
+	"github.com/doruo/falloutdle/internal/database"
 )
 
 // Game represents a current game state
@@ -25,7 +26,12 @@ type GameService struct {
 	currentGame      *Game
 }
 
-func NewGameService(cs *character.Service) *GameService {
+func NewGameService() *GameService {
+
+	db := database.GetInstance()
+	repo := character.NewCharacterRepository(db)
+	cs := character.NewCharacterService(repo)
+
 	return &GameService{
 		characterService: *cs,
 		currentGame:      nil,
