@@ -8,7 +8,6 @@ import (
 	"github.com/doruo/falloutdle/internal/character"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 // NewDatabaseConnection creates and returns a new database connection instance
@@ -23,9 +22,7 @@ func NewDatabaseConnection() (db *gorm.DB) {
 		os.Getenv("DB_SSLMODE"),
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info), // Logs SQL (only on dev)
-	})
+	db, err := gorm.Open(postgres.Open(dsn))
 
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
