@@ -25,9 +25,9 @@ type GameService struct {
 	currentGame      *Game
 }
 
-func NewGameService(cs character.Service) *GameService {
+func NewGameService(cs *character.Service) *GameService {
 	return &GameService{
-		characterService: cs,
+		characterService: *cs,
 		currentGame:      nil,
 	}
 }

@@ -20,10 +20,10 @@ func NewGameHandler(gs *game.GameService) *GameHandler {
 // /----- HTTP GET FUNCTIONS -----/
 
 // HandleDefault
-func (handler *GameHandler) HandleDefault(writer http.ResponseWriter, request http.Request) {
+func (handler *GameHandler) HandleDefault(writer http.ResponseWriter, request *http.Request) {
 
 	// Verify correct http method
-	if isMethod(request.Method, http.MethodGet) {
+	if !isMethod(request.Method, http.MethodGet) {
 		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -32,10 +32,10 @@ func (handler *GameHandler) HandleDefault(writer http.ResponseWriter, request ht
 }
 
 // HandleGetCharacter returns today guess character.
-func (handler *GameHandler) HandleGetCharacter(writer http.ResponseWriter, request http.Request) {
+func (handler *GameHandler) HandleGetCharacter(writer http.ResponseWriter, request *http.Request) {
 
 	// Verify correct http method.
-	if isMethod(request.Method, http.MethodGet) {
+	if !isMethod(request.Method, http.MethodGet) {
 		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -67,5 +67,5 @@ func sendResponse(w http.ResponseWriter, content any) {
 
 // isMethod verify correct HTTP method.
 func isMethod(requestMethod string, validMethod string) bool {
-	return requestMethod != validMethod
+	return requestMethod == validMethod
 }
