@@ -10,7 +10,8 @@ import (
 
 func main() {
 
-	handler := handler.GetInstance()
+	handler := handler.NewGameHandler()
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", handler.HandleDefault)
