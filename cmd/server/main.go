@@ -14,11 +14,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", handler.HandleDefault)
+	mux.HandleFunc("/home", handler.HandleHome)
+	mux.HandleFunc("/character", handler.HandleGetCharacter)
 
-	port := os.Getenv("PORT")
-	portStr := ":" + port
-
-	log.Println("Server listening on http://localhost:", port)
-	log.Fatal(http.ListenAndServe(portStr, mux))
+	host := os.Getenv("HOST")
+	port := ":" + os.Getenv("PORT")
+	log.Print("Server listening on http://", host, port)
+	log.Fatal(http.ListenAndServe(port, mux))
 }
