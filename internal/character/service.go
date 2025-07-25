@@ -48,10 +48,11 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 	return char, nil
 }
 
-// GetAllCharacters retrieves all valid characters for the game
-func (s *Service) GetAllCharacters() ([]Character, error) {
+// GetAllValidCharacters retrieves all valid characters for the game
+func (s *Service) GetAllValidCharacters() ([]Character, error) {
 
 	characters, err := s.repo.GetAll(0, 0)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to get characters: %w", err)
 	}
@@ -70,7 +71,7 @@ func (s *Service) GetAllCharacters() ([]Character, error) {
 // GetRandomCharacter selects a random character
 func (s *Service) GetRandomCharacter() (*Character, error) {
 
-	characters, err := s.GetAllCharacters()
+	characters, err := s.GetAllValidCharacters()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get characters: %w", err)
 	}
@@ -108,10 +109,32 @@ func (s *Service) UpdateAsPlayed(characterID uint) error {
 	return nil
 }
 
+// UpdateAsUnplayed set a character as unplayed
+func (s *Service) UpdateAsUnplayed(characterID uint) error {
+
+	if characterID <= 0 {
+		return errors.New("invalid character ID")
+	}
+
+	char, err := s.repo.GetByID(characterID)
+	if err != nil {
+		return fmt.Errorf("character not found: %w", err)
+	}
+
+	char.UpdateAsUnplayed()
+
+	err = s.repo.Update(char)
+	if err != nil {
+		return fmt.Errorf("failed to update character: %w", err)
+	}
+
+	return nil
+}
+
 // isValidForGame checks if a character is valid for the game
 func (s *Service) IsValidForGame(char *Character) bool {
 
-	if char.Name == "" || char.Race == "" || char.Gender == "" {
+	if char.Name == "" || char.Race == "" {
 		return false
 	}
 
@@ -119,8 +142,5 @@ func (s *Service) IsValidForGame(char *Character) bool {
 		return false
 	}
 
-	if char.IsPlayed() {
-		return false
-	}
-	return true
+	return !char.IsPlayed()
 }
