@@ -78,6 +78,11 @@ func (c *Character) UpdateAsPlayed() *Character {
 	return c
 }
 
+func (c *Character) UpdateAsUnplayed() *Character {
+	c.PlayedAt = nil
+	return c
+}
+
 // /----- STRING FUNCTIONS -----/
 
 // String returns a compact version for logs or short displays.
@@ -89,8 +94,9 @@ func (c *Character) String() string {
 	}
 
 	var parts []string
-	parts = append(parts, c.Name)
 	parts = append(parts, fmt.Sprintf("ID:%d", c.ID))
+	parts = append(parts, c.Name)
+	parts = append(parts, c.Gender)
 	parts = append(parts, c.Race)
 	parts = append(parts, c.MainGame)
 
