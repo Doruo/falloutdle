@@ -14,8 +14,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/home", handler.HandleHome)
+	mux.HandleFunc("/", handler.HandleGetHome)
 	mux.HandleFunc("/character", handler.HandleGetCharacter)
+	mux.HandleFunc("/random", handler.HandleGetRandomCharacter)
 
 	host := os.Getenv("HOST")
 	port := ":" + os.Getenv("PORT")

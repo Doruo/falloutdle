@@ -21,8 +21,8 @@ func NewGameHandler() *GameHandler {
 
 // /----- HTTP GET FUNCTIONS -----/
 
-// HandleHome
-func (handler *GameHandler) HandleHome(writer http.ResponseWriter, request *http.Request) {
+// HandleGetHome
+func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *http.Request) {
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
@@ -48,6 +48,29 @@ func (handler *GameHandler) HandleGetCharacter(writer http.ResponseWriter, reque
 		return
 	}
 	character, error := handler.gameService.GetCurrentCharacter()
+
+	if error != nil {
+		sendResponseError(writer, "Error while getting character", http.StatusInternalServerError)
+		return
+	}
+
+	response := Response{
+		Success: true,
+		Data:    character.Name,
+	}
+
+	sendResponseJSON(writer, response)
+}
+
+// HandleGetCharacter returns today guess character.
+func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter, request *http.Request) {
+
+	// Verify correct http method
+	if !isMethod(request.Method, http.MethodGet) {
+		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	character, error := handler.gameService.GetRandomCharacter()
 
 	if error != nil {
 		sendResponseError(writer, "Error while getting character", http.StatusInternalServerError)

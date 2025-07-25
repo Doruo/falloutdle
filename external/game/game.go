@@ -38,10 +38,8 @@ func NewGameService() *GameService {
 	}
 }
 
-// /----- LOGIC FUNCTIONS -----/
-
-// CreateCurrentGame creates a new game for today from a RandomCharacter
-func (gs *GameService) CreateCurrentGame() (*Game, error) {
+// NewCurrentGame creates a new game for today from a RandomCharacter
+func (gs *GameService) NewCurrentGame() (*Game, error) {
 
 	// Retrieves random character from database
 	character, error := gs.characterService.GetRandomCharacter()
@@ -60,6 +58,37 @@ func (gs *GameService) CreateCurrentGame() (*Game, error) {
 	gs.characterService.UpdateAsPlayed(character.ID)
 
 	return NewGame(*character), nil
+}
+
+// /----- GET LOGIC FUNCTIONS -----/
+
+func (gs *GameService) GetRandomCharacter() (*character.Character, error) {
+
+	// Retrieves random character from database
+	character, error := gs.characterService.GetRandomCharacter()
+
+	if error != nil {
+		return nil, error
+	}
+
+	return character, nil
+}
+
+func (gs *GameService) GetValidRandomCharacter() (*character.Character, error) {
+
+	// Retrieves random character from database
+	character, error := gs.GetRandomCharacter()
+
+	// Retrieves another character if not valid
+	for !gs.characterService.IsValidForGame(character) {
+
+		if error != nil {
+			return nil, error
+		}
+		character, error = gs.characterService.GetRandomCharacter()
+	}
+
+	return character, nil
 }
 
 // /----- GET FUNCTIONS -----/
@@ -91,7 +120,7 @@ func (gs *GameService) GetCurrentGame() (*Game, error) {
 		return gs.currentGame, nil
 	}
 
-	return gs.CreateCurrentGame()
+	return gs.NewCurrentGame()
 }
 
 // /----- UTILITY FUNCTIONS -----/
