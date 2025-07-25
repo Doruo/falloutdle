@@ -2,7 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/doruo/falloutdle/external/game"
 )
@@ -19,51 +21,77 @@ func NewGameHandler() *GameHandler {
 
 // /----- HTTP GET FUNCTIONS -----/
 
-// HandleDefault
-func (handler *GameHandler) HandleDefault(writer http.ResponseWriter, request *http.Request) {
+// HandleHome
+func (handler *GameHandler) HandleHome(writer http.ResponseWriter, request *http.Request) {
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
-		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	sendResponse(writer, "Hello")
+	const url = "./index.html"
+	content, err := os.ReadFile(url)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	sendResponseHTML(writer, content)
 }
 
 // HandleGetCharacter returns today guess character.
 func (handler *GameHandler) HandleGetCharacter(writer http.ResponseWriter, request *http.Request) {
 
-	// Verify correct http method.
+	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
-		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	if err := json.NewDecoder(request.Body).Decode(&request); err != nil {
-		http.Error(writer, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	character, error := handler.gameService.GetTodayCharacter()
+	character, error := handler.gameService.GetCurrentCharacter()
 
 	if error != nil {
-		http.Error(writer, "Error while getting character", http.StatusInternalServerError)
+		sendResponseError(writer, "Error while getting character", http.StatusInternalServerError)
 		return
 	}
 
-	sendResponse(writer, character.Name)
+	response := Response{
+		Success: true,
+		Data:    character.Name,
+	}
+
+	sendResponseJSON(writer, response)
 }
 
-// sendResponse sends response with content in json format.
-func sendResponse(w http.ResponseWriter, content any) {
+// /----- SEND RESPONSE METHODS -----/
 
-	w.Header().Set("Content-Type", "application/json")
+// sendResponseJSON sends response with content in json format.
+func sendResponseJSON(writer http.ResponseWriter, response Response) {
+	writer.Header().Set("Content-Type", "application/json")
+	sendReponse(writer, response)
+}
 
-	if err := json.NewEncoder(w).Encode(content); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+func sendResponseHTML(writer http.ResponseWriter, content []byte) {
+	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+	writer.Write(content)
+}
+
+// sendResponseJSON sends response with content in json format.
+func sendResponseError(writer http.ResponseWriter, message string, httpStatus int) {
+	response := Response{
+		Success: false,
+		Error:   message,
+	}
+	writer.WriteHeader(httpStatus)
+	sendReponse(writer, response)
+}
+
+func sendReponse(writer http.ResponseWriter, response Response) {
+	if err := json.NewEncoder(writer).Encode(&response); err != nil {
+		http.Error(writer, "Failed to encode response", http.StatusInternalServerError)
 	}
 }
+
+// /----- UTILITY METHODS -----/
 
 // isMethod verify correct HTTP method.
 func isMethod(requestMethod string, validMethod string) bool {
