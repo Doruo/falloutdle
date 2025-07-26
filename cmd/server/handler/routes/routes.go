@@ -7,7 +7,9 @@ import (
 )
 
 func SetupRoutes(mux *http.ServeMux) {
+
 	handler := handler.NewGameHandler()
+	handler.GetGameService().GetCurrentCharacter() // Creates a new game if nil
 
 	mux.HandleFunc("/", handler.HandleGetHome)
 	mux.HandleFunc("/api/today", handler.HandleGetTodayCharacter)

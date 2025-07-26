@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
@@ -22,13 +24,13 @@ func NewGameHandler() *GameHandler {
 // /----- HTTP GET -----/
 
 // HandleGetHome
-func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *http.Request) {
+func (handler *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling GET request: home page ...")
 
 	// Verify correct http method
-	if !isMethod(request.Method, http.MethodGet) {
-		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
+	if !isGetMethod(r.Method) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -38,52 +40,52 @@ func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *h
 		fmt.Println("Error: ", err)
 	}
 
-	sendHTMLResponse(writer, content)
+	sendHTMLResponse(w, content)
 }
 
 // HandleGetTodayCharacter returns today guess character.
-func (handler *GameHandler) HandleGetTodayCharacter(writer http.ResponseWriter, request *http.Request) {
+func (handler *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("API - handling GET request: today character")
 
 	// Verify correct http method
-	if !isMethod(request.Method, http.MethodGet) {
-		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
+	if !isGetMethod(r.Method) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	character, error := handler.gameService.GetCurrentCharacter()
 
 	if error != nil {
-		sendErrorResponse(writer, "Error while getting character", http.StatusInternalServerError)
+		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
 		return
 	}
 
-	sendJSONResponse(writer, Response{
+	sendJSONResponse(w, Response{
 		Success: true,
 		Data:    []any{character},
 	})
 }
 
 // HandleGetRandomCharacter returns random character from fallout games.
-func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter, request *http.Request) {
+func (handler *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling GET request: random character")
 
 	// Verify correct http method
-	if !isMethod(request.Method, http.MethodGet) {
-		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
+	if !isGetMethod(r.Method) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	character, error := handler.gameService.GetRandomCharacter()
 
 	if error != nil {
-		sendErrorResponse(writer, "Error while getting character", http.StatusInternalServerError)
+		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
 		return
 	}
 
-	sendJSONResponse(writer, Response{
+	sendJSONResponse(w, Response{
 		Success: true,
 		Data:    []any{character},
 	})
@@ -91,22 +93,55 @@ func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter,
 
 // /----- HTTP POST -----/
 
-func (handler *GameHandler) HandlePostGuessCharacter(writer http.ResponseWriter, request *http.Request) {
+// HandlePostGuessCharacter receive and process character guess attempt.
+func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling POST request: guess character")
 
 	// Verify correct http method
-	if !isMethod(request.Method, http.MethodPost) {
-		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
+	if !isPostMethod(r.Method) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	fmt.Println("guess character:", request.Body)
+	// Verify correct content-type
+	if !isContentTypeJSON(r.Header) {
+		sendErrorResponse(w, "Content-Type must be application/json", http.StatusBadRequest)
+		return
+	}
+
+	// Read body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		sendErrorResponse(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Parse result result
+	var result map[string]string
+	err = json.Unmarshal(body, &result)
+
+	if err != nil {
+		sendErrorResponse(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	name := result["character_name"]
+	fmt.Println("Guess value:", name)
+	isGuessed, err := handler.gameService.ProcessGuess(name)
+
+	if err != nil {
+		sendErrorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println("Is correct:", isGuessed)
 }
 
-// /----- UTILITY METHODS -----/
+// /----- GET FUNCTIONS -----/
 
-// isMethod verify correct HTTP method.
-func isMethod(requestMethod string, validMethod string) bool {
-	return requestMethod == validMethod
+// HandlePostGuessCharacter receive and process character guess attempt.
+func (handler *GameHandler) GetGameService() *game.GameService {
+	return handler.gameService
 }

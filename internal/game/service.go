@@ -2,9 +2,11 @@ package game
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/doruo/falloutdle/internal/character"
 	"github.com/doruo/falloutdle/internal/database"
+	"github.com/doruo/falloutdle/pkg/strutils"
 )
 
 // Game logic service
@@ -121,6 +123,37 @@ func (gs *GameService) getCurrentGame() (*Game, error) {
 
 // /----- POST LOGIC FUNCTIONS -----/
 
-func (gs *GameService) ProcessGuess(string) {
+func (gs *GameService) ProcessGuess(name string) (bool, error) {
 
+	character, err := gs.GetCurrentCharacter()
+
+	if err != nil {
+		return false, err
+	}
+
+	return isCorrect(name, character.Name), nil
+}
+
+// isCorrect returns true if name guessed corresponds to the correct character name
+func isCorrect(guessName string, correctName string) bool {
+
+	if guessName == correctName {
+		return true
+	}
+
+	guess := strings.ToLower(strings.TrimSpace(guessName))
+	correct := strings.ToLower(strings.TrimSpace(correctName))
+
+	if guess == correct {
+		return true
+	}
+
+	guess = strutils.NormalizeString(guessName)
+	correct = strutils.NormalizeString(correctName)
+
+	if len(guess) >= 4 && len(correct) >= 4 {
+		return strings.Contains(correct, guess) || strings.Contains(guess, correct)
+	}
+
+	return false
 }
