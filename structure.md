@@ -8,7 +8,7 @@ falloutdle/
 │   ├── character/              # domain
 │   │   ├── model.go            # character struct
 │   │   ├── repository.go       # database interface + GORM
-│   │   ├── gamecode.go         # fallout games code references
+│   │   ├── gamecode.go         # games code references
 │   │   └── service.go          # character logic interface
 │   │
 │   └── database/
@@ -16,7 +16,7 @@ falloutdle/
 │
 ├── external/
 │   │
-│   ├── wiki/                   # fandom wiki api
+│   ├── wiki/                   # wiki api
 │   │   ├── client.go           # wiki api client
 │   │   └── response.go         # wiki api response
 │   │
