@@ -3,9 +3,9 @@
 ```
 falloutdle/
 │
-├── internal/
+├── internal/                   # domains
 │   │
-│   ├── character/              # domain
+│   ├── character/              
 │   │   ├── model.go            # character struct
 │   │   ├── repository.go       # database interface + GORM
 │   │   ├── gamecode.go         # games code references
@@ -20,27 +20,27 @@ falloutdle/
 │
 ├── external/
 │   │
-│   └── wiki/                   # wiki api
-│       ├── client.go           # wiki api client
-│       └── response.go         # wiki api response
+│   └── wiki/                   # external wiki api
+│       ├── client.go           # external wiki api client
+│       └── response.go         # external wiki api response
 │
-├── tests/
+├── tests/                      # tests
 │   ├── database_test.go        # database communication test
 │   └── wiki_test.go            # wiki api requests test
 │
-├── cmd/                        # entry point
-│   └── server/              
-│       ├── handlers/           # HTTP handle
-│       │    ├── handler.go     # wiki api requests test
-│       │    └── routes.go      # main server
+├── cmd/                        
+│   └── server/                 # entry point
+│       ├── handlers/           # api http requests handling
+│       │    ├── handler.go     # api handling
+│       │    └── routes.go      # api routes
 │       └── main.go             # main server
 │
 ├── pkg/                    
 │   └── libs/                   # public packages
 │
 ├── .env.example                # example attributs to use in env
-├── .gitignore
-├── go.mod                      # projetct depedancies
-├── go.sum                      # project dependancies checksums
-└── README.md                   # docs
+├── .gitignore                  
+├── go.mod                      # project dependencies
+├── go.sum                      # project dependencies checksums
+└── README.md
 ```
