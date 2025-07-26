@@ -15,7 +15,7 @@ type GameHandler struct {
 
 func NewGameHandler() *GameHandler {
 	return &GameHandler{
-		gameService: game.GetInstance(),
+		gameService: game.GetServiceInstance(),
 	}
 }
 
@@ -39,8 +39,10 @@ func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *h
 	sendResponseHTML(writer, content)
 }
 
-// HandleGetCharacter returns today guess character.
-func (handler *GameHandler) HandleGetCharacter(writer http.ResponseWriter, request *http.Request) {
+// HandleGetTodayCharacter returns today guess character.
+func (handler *GameHandler) HandleGetTodayCharacter(writer http.ResponseWriter, request *http.Request) {
+
+	fmt.Println("API: today character request...")
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
@@ -56,7 +58,7 @@ func (handler *GameHandler) HandleGetCharacter(writer http.ResponseWriter, reque
 
 	response := Response{
 		Success: true,
-		Data:    character.Name,
+		Data:    character.String(),
 	}
 
 	sendResponseJSON(writer, response)
@@ -65,11 +67,14 @@ func (handler *GameHandler) HandleGetCharacter(writer http.ResponseWriter, reque
 // HandleGetCharacter returns today guess character.
 func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter, request *http.Request) {
 
+	fmt.Println("API: Handling random character request...")
+
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
 		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
 	character, error := handler.gameService.GetRandomCharacter()
 
 	if error != nil {
@@ -100,6 +105,9 @@ func sendResponseHTML(writer http.ResponseWriter, content []byte) {
 
 // sendResponseJSON sends response with content in json format.
 func sendResponseError(writer http.ResponseWriter, message string, httpStatus int) {
+
+	fmt.Println("API: Error,", message, httpStatus)
+
 	response := Response{
 		Success: false,
 		Error:   message,

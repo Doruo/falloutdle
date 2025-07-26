@@ -39,7 +39,7 @@ func NewGameService() *GameService {
 
 var instance *GameService
 
-func GetInstance() *GameService {
+func GetServiceInstance() *GameService {
 	if instance == nil {
 		instance = NewGameService()
 	}
@@ -50,7 +50,7 @@ func GetInstance() *GameService {
 func (gs *GameService) NewCurrentGame() (*Game, error) {
 
 	// Retrieves random character from database
-	character, error := gs.characterService.GetRandomCharacter()
+	character, error := gs.GetRandomValidCharacter()
 
 	// Retrieves another character if not valid
 	for !gs.characterService.IsValidForGame(character) {
@@ -82,7 +82,7 @@ func (gs *GameService) GetRandomCharacter() (*character.Character, error) {
 	return character, nil
 }
 
-func (gs *GameService) GetValidRandomCharacter() (*character.Character, error) {
+func (gs *GameService) GetRandomValidCharacter() (*character.Character, error) {
 
 	// Retrieves random character from database
 	character, error := gs.GetRandomCharacter()
@@ -93,7 +93,7 @@ func (gs *GameService) GetValidRandomCharacter() (*character.Character, error) {
 		if error != nil {
 			return nil, error
 		}
-		character, error = gs.characterService.GetRandomCharacter()
+		character, error = gs.GetRandomCharacter()
 	}
 
 	return character, nil
@@ -115,15 +115,22 @@ func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 }
 
 // GetCurrentGame returns today current game.
-// Creates a new one if none found
+// Creates a new one for if none found
 func (gs *GameService) GetCurrentGame() (*Game, error) {
 
 	today := getCurrentDate()
 
-	//fmt.Println(gs.currentGame)
-	//fmt.Println("meme date ?: ", gs.currentGame.Date.Equal(today))
+	// Creates a new one for today if none found
+	if gs.currentGame == nil {
 
-	// Already existing game created today
+		var err error
+		gs.currentGame, err = gs.NewCurrentGame()
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if gs.currentGame != nil && gs.currentGame.Date.Equal(today) {
 		return gs.currentGame, nil
 	}

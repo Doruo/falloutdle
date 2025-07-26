@@ -58,14 +58,14 @@ func (s *Service) GetAllValidCharacters() ([]Character, error) {
 	}
 
 	// Filter valid characters for the game
-	var gameCharacters []Character
+	var validCharacters []Character
 	for _, char := range characters {
 		if s.IsValidForGame(&char) {
-			gameCharacters = append(gameCharacters, char)
+			validCharacters = append(validCharacters, char)
 		}
 	}
 
-	return gameCharacters, nil
+	return validCharacters, nil
 }
 
 // GetRandomCharacter selects a random character
