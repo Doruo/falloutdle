@@ -11,7 +11,7 @@ import (
 func main() {
 
 	mux := http.NewServeMux()
-	handler.SetupRoutes(mux, handler.NewGameHandler())
+	handler.SetupRoutes(mux)
 
 	host := os.Getenv("HOST")
 	port := ":" + os.Getenv("PORT")

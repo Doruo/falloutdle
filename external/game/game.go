@@ -30,12 +30,20 @@ func NewGameService() *GameService {
 
 	db := database.GetInstance()
 	repo := character.NewCharacterRepository(db)
-	cs := character.NewCharacterService(repo)
 
 	return &GameService{
-		characterService: *cs,
+		characterService: *character.NewCharacterService(repo),
 		currentGame:      nil,
 	}
+}
+
+var instance *GameService
+
+func GetInstance() *GameService {
+	if instance == nil {
+		instance = NewGameService()
+	}
+	return instance
 }
 
 // NewCurrentGame creates a new game for today from a RandomCharacter

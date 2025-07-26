@@ -15,7 +15,7 @@ type GameHandler struct {
 
 func NewGameHandler() *GameHandler {
 	return &GameHandler{
-		gameService: game.NewGameService(),
+		gameService: game.GetInstance(),
 	}
 }
 
