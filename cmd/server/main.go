@@ -10,13 +10,8 @@ import (
 
 func main() {
 
-	handler := handler.NewGameHandler()
-
 	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", handler.HandleGetHome)
-	mux.HandleFunc("/character", handler.HandleGetCharacter)
-	mux.HandleFunc("/random", handler.HandleGetRandomCharacter)
+	handler.SetupRoutes(mux, handler.NewGameHandler())
 
 	host := os.Getenv("HOST")
 	port := ":" + os.Getenv("PORT")
