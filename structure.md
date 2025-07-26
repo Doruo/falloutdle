@@ -11,18 +11,18 @@ falloutdle/
 │   │   ├── gamecode.go         # games code references
 │   │   └── service.go          # character logic interface
 │   │
+│   ├── game/               
+│   │   ├── model.go            # game structure
+│   │   └── service.go          # game logic
+│   │
 │   └── database/
 │       └── connection.go       # GORM database connection
 │
 ├── external/
 │   │
-│   ├── wiki/                   # wiki api
-│   │   ├── client.go           # wiki api client
-│   │   └── response.go         # wiki api response
-│   │
-│   └── game/               
-│       ├── model.go            # game structure
-│       └── service.go          # game logic
+│   └── wiki/                   # wiki api
+│       ├── client.go           # wiki api client
+│       └── response.go         # wiki api response
 │
 ├── tests/
 │   ├── database_test.go        # database communication test

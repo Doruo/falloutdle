@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/doruo/falloutdle/external/game"
+	"github.com/doruo/falloutdle/internal/game"
 	"github.com/doruo/falloutdle/pkg/time"
 )
 
