@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/doruo/falloutdle/external/game"
+	"github.com/doruo/falloutdle/pkg/time"
 )
 
 type GameHandler struct {
@@ -19,10 +19,12 @@ func NewGameHandler() *GameHandler {
 	}
 }
 
-// /----- HTTP GET FUNCTIONS -----/
+// /----- HTTP GET -----/
 
 // HandleGetHome
 func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *http.Request) {
+
+	fmt.Println(time.Today(), "API - handling GET request: home page ...")
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
@@ -42,7 +44,7 @@ func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *h
 // HandleGetTodayCharacter returns today guess character.
 func (handler *GameHandler) HandleGetTodayCharacter(writer http.ResponseWriter, request *http.Request) {
 
-	fmt.Println("API: today character request...")
+	fmt.Println("API - handling GET request: today character")
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
@@ -57,18 +59,16 @@ func (handler *GameHandler) HandleGetTodayCharacter(writer http.ResponseWriter, 
 		return
 	}
 
-	response := Response{
+	sendJSONResponse(writer, Response{
 		Success: true,
 		Data:    []any{character},
-	}
-
-	sendJSONResponse(writer, response)
+	})
 }
 
 // HandleGetRandomCharacter returns random character from fallout games.
 func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter, request *http.Request) {
 
-	fmt.Println("API: Handling random character request...")
+	fmt.Println(time.Today(), "API - handling GET request: random character")
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
@@ -89,35 +89,19 @@ func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter,
 	})
 }
 
-// /----- SEND RESPONSE METHODS -----/
+// /----- HTTP POST -----/
 
-// sendJSONResponse sends response with content in JSON format.
-func sendJSONResponse(writer http.ResponseWriter, response Response) {
-	writer.Header().Set("Content-Type", "application/json")
-	sendReponse(writer, response)
-}
+func (handler *GameHandler) HandlePostGuessCharacter(writer http.ResponseWriter, request *http.Request) {
 
-// sendHTMLResponse sends response with content in HTML format.
-func sendHTMLResponse(writer http.ResponseWriter, content []byte) {
-	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-	writer.Write(content)
-}
+	fmt.Println(time.Today(), "API - handling POST request: guess character")
 
-// sendErrorResponse sends response error with message and httpStatus in json format.
-func sendErrorResponse(writer http.ResponseWriter, message string, httpStatus int) {
-
-	fmt.Println("API error :", message, httpStatus)
-
-	writer.WriteHeader(httpStatus)
-	sendJSONResponse(writer, Response{
-		Error: message,
-	})
-}
-
-func sendReponse(writer http.ResponseWriter, response Response) {
-	if err := json.NewEncoder(writer).Encode(&response); err != nil {
-		http.Error(writer, "Failed to encode response", http.StatusInternalServerError)
+	// Verify correct http method
+	if !isMethod(request.Method, http.MethodPost) {
+		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
+	fmt.Println("guess character:", request.Body)
 }
 
 // /----- UTILITY METHODS -----/

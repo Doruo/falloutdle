@@ -2,30 +2,18 @@ package game
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/doruo/falloutdle/internal/character"
 	"github.com/doruo/falloutdle/internal/database"
 )
-
-// Game represents a current game state
-type Game struct {
-	CurrentCharacter character.Character
-	Date             time.Time `json:"date"`
-}
-
-func NewGame(c character.Character) *Game {
-	return &Game{
-		CurrentCharacter: c,
-		Date:             time.Now(),
-	}
-}
 
 // Game logic service
 type GameService struct {
 	characterService character.Service
 	currentGame      *Game
 }
+
+var instance *GameService
 
 func NewGameService() *GameService {
 
@@ -38,8 +26,6 @@ func NewGameService() *GameService {
 	}
 }
 
-var instance *GameService
-
 func GetServiceInstance() *GameService {
 	if instance == nil {
 		instance = NewGameService()
@@ -51,7 +37,7 @@ func GetServiceInstance() *GameService {
 func (gs *GameService) NewCurrentGame() (*Game, error) {
 
 	// Retrieves random character from database
-	character, error := gs.GetRandomValidCharacter()
+	character, error := gs.getRandomValidCharacter()
 
 	// Retrieves another character if not valid
 	for !gs.characterService.IsValidForGame(character) {
@@ -60,7 +46,7 @@ func (gs *GameService) NewCurrentGame() (*Game, error) {
 			return nil, error
 		}
 
-		character, error = gs.GetRandomValidCharacter()
+		character, error = gs.getRandomValidCharacter()
 	}
 
 	// Marks character or update played date
@@ -83,7 +69,7 @@ func (gs *GameService) GetRandomCharacter() (*character.Character, error) {
 	return character, nil
 }
 
-func (gs *GameService) GetRandomValidCharacter() (*character.Character, error) {
+func (gs *GameService) getRandomValidCharacter() (*character.Character, error) {
 
 	// Retrieves random character from database
 	character, error := gs.GetRandomCharacter()
@@ -100,26 +86,22 @@ func (gs *GameService) GetRandomValidCharacter() (*character.Character, error) {
 	return character, nil
 }
 
-// /----- GET FUNCTIONS -----/
-
 // GetCurrentCharacter returns today current character.
 // Creates a new one if none found
 func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 
-	game, err := gs.GetCurrentGame()
+	game, err := gs.getCurrentGame()
 
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(game)
 
 	return &game.CurrentCharacter, nil
 }
 
 // GetCurrentGame returns today current game.
 // Creates a new one for if none found
-func (gs *GameService) GetCurrentGame() (*Game, error) {
+func (gs *GameService) getCurrentGame() (*Game, error) {
 
 	// Creates a new one for today if none found
 	if gs.currentGame == nil {
@@ -137,9 +119,8 @@ func (gs *GameService) GetCurrentGame() (*Game, error) {
 	return gs.currentGame, nil
 }
 
-// /----- UTILITY FUNCTIONS -----/
+// /----- POST LOGIC FUNCTIONS -----/
 
-// getCurrentDate returns today's date in 24h UTC format.
-func getCurrentDate() time.Time {
-	return time.Now().UTC().Truncate(24 * time.Hour)
+func (gs *GameService) ProcessGuess(string) {
+
 }
