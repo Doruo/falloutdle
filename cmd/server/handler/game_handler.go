@@ -26,7 +26,7 @@ func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *h
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
-		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -36,7 +36,7 @@ func (handler *GameHandler) HandleGetHome(writer http.ResponseWriter, request *h
 		fmt.Println("Error: ", err)
 	}
 
-	sendResponseHTML(writer, content)
+	sendHTMLResponse(writer, content)
 }
 
 // HandleGetTodayCharacter returns today guess character.
@@ -46,23 +46,23 @@ func (handler *GameHandler) HandleGetTodayCharacter(writer http.ResponseWriter, 
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
-		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	character, error := handler.gameService.GetCurrentCharacter()
 
 	if error != nil {
-		sendResponseError(writer, "Error while getting character", http.StatusInternalServerError)
+		sendErrorResponse(writer, "Error while getting character", http.StatusInternalServerError)
 		return
 	}
 
 	response := Response{
 		Success: true,
-		Data:    character.Name,
+		Data:    []any{character},
 	}
 
-	sendResponseJSON(writer, response)
+	sendJSONResponse(writer, response)
 }
 
 // HandleGetRandomCharacter returns random character from fallout games.
@@ -72,49 +72,46 @@ func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter,
 
 	// Verify correct http method
 	if !isMethod(request.Method, http.MethodGet) {
-		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		sendErrorResponse(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	character, error := handler.gameService.GetRandomCharacter()
 
 	if error != nil {
-		sendResponseError(writer, "Error while getting character", http.StatusInternalServerError)
+		sendErrorResponse(writer, "Error while getting character", http.StatusInternalServerError)
 		return
 	}
 
-	response := Response{
+	sendJSONResponse(writer, Response{
 		Success: true,
-		Data:    character.Name,
-	}
-
-	sendResponseJSON(writer, response)
+		Data:    []any{character},
+	})
 }
 
 // /----- SEND RESPONSE METHODS -----/
 
-// sendResponseJSON sends response with content in json format.
-func sendResponseJSON(writer http.ResponseWriter, response Response) {
+// sendJSONResponse sends response with content in JSON format.
+func sendJSONResponse(writer http.ResponseWriter, response Response) {
 	writer.Header().Set("Content-Type", "application/json")
 	sendReponse(writer, response)
 }
 
-func sendResponseHTML(writer http.ResponseWriter, content []byte) {
+// sendHTMLResponse sends response with content in HTML format.
+func sendHTMLResponse(writer http.ResponseWriter, content []byte) {
 	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
 	writer.Write(content)
 }
 
-// sendResponseJSON sends response with content in json format.
-func sendResponseError(writer http.ResponseWriter, message string, httpStatus int) {
+// sendErrorResponse sends response error with message and httpStatus in json format.
+func sendErrorResponse(writer http.ResponseWriter, message string, httpStatus int) {
 
-	fmt.Println("API: Error,", message, httpStatus)
+	fmt.Println("API error :", message, httpStatus)
 
-	response := Response{
-		Success: false,
-		Error:   message,
-	}
 	writer.WriteHeader(httpStatus)
-	sendReponse(writer, response)
+	sendJSONResponse(writer, Response{
+		Error: message,
+	})
 }
 
 func sendReponse(writer http.ResponseWriter, response Response) {

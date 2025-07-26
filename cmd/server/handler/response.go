@@ -3,6 +3,6 @@ package handler
 // JSON response handler format
 type Response struct {
 	Success bool   `json:"success"`
-	Data    string `json:"data,omitempty"`
+	Data    []any  `json:"data,omitempty"`
 	Error   string `json:"error,omitempty"`
 }

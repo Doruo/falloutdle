@@ -60,7 +60,7 @@ func (gs *GameService) NewCurrentGame() (*Game, error) {
 			return nil, error
 		}
 
-		character, error = gs.characterService.GetRandomCharacter()
+		character, error = gs.GetRandomValidCharacter()
 	}
 
 	// Marks character or update played date
@@ -113,7 +113,6 @@ func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 	}
 
 	fmt.Println(game)
-	fmt.Println(game.CurrentCharacter)
 
 	return &game.CurrentCharacter, nil
 }
