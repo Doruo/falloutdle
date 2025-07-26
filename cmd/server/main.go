@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/doruo/falloutdle/cmd/server/handler"
+	"github.com/doruo/falloutdle/cmd/server/handler/routes"
 )
 
 func main() {
 
 	mux := http.NewServeMux()
-	handler.SetupRoutes(mux)
+	routes.SetupRoutes(mux)
 
 	host := os.Getenv("HOST")
 	port := ":" + os.Getenv("PORT")
