@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/doruo/falloutdle/internal/character"
@@ -111,6 +112,9 @@ func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 		return nil, err
 	}
 
+	fmt.Println(game)
+	fmt.Println(game.CurrentCharacter)
+
 	return &game.CurrentCharacter, nil
 }
 
@@ -118,10 +122,10 @@ func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 // Creates a new one for if none found
 func (gs *GameService) GetCurrentGame() (*Game, error) {
 
-	today := getCurrentDate()
-
 	// Creates a new one for today if none found
 	if gs.currentGame == nil {
+
+		fmt.Println("LOG: no game found for today, creating new one...")
 
 		var err error
 		gs.currentGame, err = gs.NewCurrentGame()
@@ -131,11 +135,7 @@ func (gs *GameService) GetCurrentGame() (*Game, error) {
 		}
 	}
 
-	if gs.currentGame != nil && gs.currentGame.Date.Equal(today) {
-		return gs.currentGame, nil
-	}
-
-	return gs.NewCurrentGame()
+	return gs.currentGame, nil
 }
 
 // /----- UTILITY FUNCTIONS -----/

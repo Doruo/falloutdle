@@ -49,6 +49,7 @@ func (handler *GameHandler) HandleGetTodayCharacter(writer http.ResponseWriter, 
 		sendResponseError(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
 	character, error := handler.gameService.GetCurrentCharacter()
 
 	if error != nil {
@@ -58,13 +59,13 @@ func (handler *GameHandler) HandleGetTodayCharacter(writer http.ResponseWriter, 
 
 	response := Response{
 		Success: true,
-		Data:    character.String(),
+		Data:    character.Name,
 	}
 
 	sendResponseJSON(writer, response)
 }
 
-// HandleGetCharacter returns today guess character.
+// HandleGetRandomCharacter returns random character from fallout games.
 func (handler *GameHandler) HandleGetRandomCharacter(writer http.ResponseWriter, request *http.Request) {
 
 	fmt.Println("API: Handling random character request...")
