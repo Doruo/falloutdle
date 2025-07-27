@@ -15,6 +15,7 @@ func main() {
 
 	host := os.Getenv("HOST")
 	port := ":" + os.Getenv("PORT")
-	log.Print("Server listening on http://", host, port)
+	log.Print("Server listening on http://localhost", port)
+	log.Print("Website URL: ", host)
 	log.Fatal(http.ListenAndServe(port, mux))
 }
