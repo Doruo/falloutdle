@@ -102,7 +102,7 @@ func (gs *GameService) getRandomValidCharacter() (*character.Character, error) {
 // Creates a new one if none found
 func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 
-	game, err := gs.getCurrentGame()
+	game, err := gs.GetCurrentGame()
 
 	if err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 
 // GetCurrentGame returns today current game.
 // Creates a new one for if none found
-func (gs *GameService) getCurrentGame() (*Game, error) {
+func (gs *GameService) GetCurrentGame() (*Game, error) {
 
 	// Creates a new one for today if none found
 	if gs.currentGame == nil {
