@@ -5,34 +5,21 @@ import (
 	"strings"
 
 	"github.com/doruo/falloutdle/internal/character"
-	"github.com/doruo/falloutdle/internal/database"
 	"github.com/doruo/falloutdle/pkg/strutils"
 )
 
 // Game logic service
 type GameService struct {
 	characterService character.Service
+	repository       Repository
 	currentGame      *Game
 }
 
-var instance *GameService
-
-func NewGameService() *GameService {
-
-	db := database.GetInstance()
-	repo := character.NewCharacterRepository(db)
-
+func NewGameService(cs *character.Service, repo *Repository) *GameService {
 	return &GameService{
-		characterService: *character.NewCharacterService(repo),
-		currentGame:      nil,
+		characterService: *cs,
+		repository:       *repo,
 	}
-}
-
-func GetServiceInstance() *GameService {
-	if instance == nil {
-		instance = NewGameService()
-	}
-	return instance
 }
 
 // NewCurrentGame creates a new game for today from a RandomCharacter
@@ -54,10 +41,33 @@ func (gs *GameService) NewCurrentGame() (*Game, error) {
 	// Marks character or update played date
 	gs.characterService.UpdateAsPlayed(character.ID)
 
-	return NewGame(*character), nil
+	// Create and save game into database
+	game := NewGame(character.ID)
+	gs.Add(game)
+
+	return game, nil
+}
+
+// Add a game into database, returns nil if no error
+func (gs *GameService) Add(g *Game) error {
+	if err := gs.repository.Add(g); err != nil {
+		return err
+	}
+	return nil
 }
 
 // /----- GET LOGIC FUNCTIONS -----/
+
+func (gs *GameService) GetCharacterByID(id uint) (*character.Character, error) {
+
+	character, error := gs.characterService.GetByID(id)
+
+	if error != nil {
+		return nil, error
+	}
+
+	return character, nil
+}
 
 func (gs *GameService) GetRandomCharacter() (*character.Character, error) {
 
@@ -98,7 +108,13 @@ func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 		return nil, err
 	}
 
-	return &game.CurrentCharacter, nil
+	character, err := gs.GetCharacterByID(game.CharacterID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return character, nil
 }
 
 // GetCurrentGame returns today current game.

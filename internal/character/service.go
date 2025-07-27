@@ -9,24 +9,24 @@ import (
 
 // characterService implements Repository using CharacterRepository
 type Service struct {
-	repo *Repository
+	repository *Repository
 }
 
 // NewCharacterService creates a new character service
 func NewCharacterService(repo *Repository) *Service {
-	return &Service{repo: repo}
+	return &Service{repository: repo}
 }
 
 // /----- GET FUNCTIONS -----/
 
 // GetByID retrieves a character by ID
-func (s *Service) GetByID(id int) (*Character, error) {
+func (s *Service) GetByID(id uint) (*Character, error) {
 
 	if id <= 0 {
 		return nil, errors.New("invalid ID")
 	}
 
-	char, err := s.repo.GetByID(uint(id))
+	char, err := s.repository.GetByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character ID %d: %w", id, err)
 	}
@@ -40,7 +40,7 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 		return nil, errors.New("invalid title")
 	}
 
-	char, err := s.repo.GetByWikiTitle(title)
+	char, err := s.repository.GetByWikiTitle(title)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character from tite %s: %w", title, err)
 	}
@@ -51,7 +51,7 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 // GetAllValidCharacters retrieves all valid characters for the game
 func (s *Service) GetAllValidCharacters() ([]Character, error) {
 
-	characters, err := s.repo.GetAll(0, 0)
+	characters, err := s.repository.GetAll(0, 0)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get characters: %w", err)
@@ -88,20 +88,20 @@ func (s *Service) GetRandomCharacter() (*Character, error) {
 // /----- UTILITY FUNCTIONS -----/
 
 // UpdateAsPlayed marks a character as played or updates his date if already played
-func (s *Service) UpdateAsPlayed(characterID uint) error {
+func (s *Service) UpdateAsPlayed(id uint) error {
 
-	if characterID <= 0 {
+	if id <= 0 {
 		return errors.New("invalid character ID")
 	}
 
-	char, err := s.repo.GetByID(characterID)
+	char, err := s.repository.GetByID(id)
 	if err != nil {
 		return fmt.Errorf("character not found: %w", err)
 	}
 
 	char.UpdateAsPlayed()
 
-	err = s.repo.Update(char)
+	err = s.repository.Update(char)
 	if err != nil {
 		return fmt.Errorf("failed to update character: %w", err)
 	}
@@ -110,20 +110,20 @@ func (s *Service) UpdateAsPlayed(characterID uint) error {
 }
 
 // UpdateAsUnplayed set a character as unplayed
-func (s *Service) UpdateAsUnplayed(characterID uint) error {
+func (s *Service) UpdateAsUnplayed(id uint) error {
 
-	if characterID <= 0 {
+	if id <= 0 {
 		return errors.New("invalid character ID")
 	}
 
-	char, err := s.repo.GetByID(characterID)
+	char, err := s.repository.GetByID(id)
 	if err != nil {
 		return fmt.Errorf("character not found: %w", err)
 	}
 
 	char.UpdateAsUnplayed()
 
-	err = s.repo.Update(char)
+	err = s.repository.Update(char)
 	if err != nil {
 		return fmt.Errorf("failed to update character: %w", err)
 	}
@@ -132,15 +132,15 @@ func (s *Service) UpdateAsUnplayed(characterID uint) error {
 }
 
 // isValidForGame checks if a character is valid for the game
-func (s *Service) IsValidForGame(char *Character) bool {
+func (s *Service) IsValidForGame(c *Character) bool {
 
-	if char.Name == "" || char.Race == "" {
+	if c.Name == "" || c.Race == "" {
 		return false
 	}
 
-	if len(char.Games) == 0 && char.MainGame == "" {
+	if len(c.Games) == 0 && c.MainGame == "" {
 		return false
 	}
 
-	return !char.IsPlayed()
+	return !c.IsPlayed()
 }

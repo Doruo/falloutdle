@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/doruo/falloutdle/internal/character"
+	"github.com/doruo/falloutdle/internal/game"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -43,7 +44,12 @@ func NewDatabaseConnection() (db *gorm.DB) {
 	// Auto-migration
 	err = db.AutoMigrate(&character.Character{})
 	if err != nil {
-		log.Fatal("Failed to migrate:", err)
+		log.Fatal("Failed to migrate Character :", err)
+	}
+
+	err = db.AutoMigrate(&game.Game{})
+	if err != nil {
+		log.Fatal("Failed to migrate: Game", err)
 	}
 
 	return

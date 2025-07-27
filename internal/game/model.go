@@ -2,19 +2,17 @@ package game
 
 import (
 	"time"
-
-	"github.com/doruo/falloutdle/internal/character"
 )
 
-// Game represents a current game state
+// Game represents a game state.
 type Game struct {
-	CurrentCharacter character.Character
-	Date             time.Time `json:"date"`
+	Date        time.Time `json:"date" gorm:"primaryKey;"`
+	CharacterID uint      `json:"id" gorm:"characterID;"`
 }
 
-func NewGame(c character.Character) *Game {
+func NewGame(id uint) *Game {
 	return &Game{
-		CurrentCharacter: c,
-		Date:             time.Now(),
+		Date:        time.Now(),
+		CharacterID: id,
 	}
 }
