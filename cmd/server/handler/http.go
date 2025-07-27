@@ -59,7 +59,7 @@ func isGetMethod(method string) bool {
 	return method == http.MethodGet
 }
 
-// isGetMethod verify correct GET HTTP method.
+// isGetMethod verify correct POST HTTP method.
 func isPostMethod(method string) bool {
 	return method == http.MethodPost
 }
