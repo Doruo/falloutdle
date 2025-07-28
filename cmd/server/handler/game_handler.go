@@ -29,7 +29,7 @@ func (handler *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request
 	fmt.Println(time.Today(), "API - handling GET request: home page ...")
 
 	// Verify correct http method
-	if !isGetMethod(r.Method) {
+	if !isGetMethod(r) {
 		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -49,7 +49,7 @@ func (handler *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *ht
 	fmt.Println("API - handling GET request: today character")
 
 	// Verify correct http method
-	if !isGetMethod(r.Method) {
+	if !isGetMethod(r) {
 		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -73,7 +73,7 @@ func (handler *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *h
 	fmt.Println(time.Today(), "API - handling GET request: random character")
 
 	// Verify correct http method
-	if !isGetMethod(r.Method) {
+	if !isGetMethod(r) {
 		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -99,13 +99,13 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 	fmt.Println(time.Today(), "API - handling POST request: guess character")
 
 	// Verify correct http method
-	if !isPostMethod(r.Method) {
+	if !isPostMethod(r) {
 		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	// Verify correct content-type
-	if !isContentTypeJSON(r.Header) {
+	if !isContentTypeJSON(&r.Header) {
 		sendErrorResponse(w, "Content-Type must be application/json", http.StatusBadRequest)
 		return
 	}
@@ -116,7 +116,6 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 		sendErrorResponse(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
-	defer r.Body.Close()
 
 	// Parse result result
 	var result map[string]string
@@ -137,6 +136,11 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 	}
 
 	fmt.Println("Is correct:", isGuessed)
+
+	sendJSONResponse(w, Response{
+		Success: true,
+		Data:    []any{GuessResponse{IsGuessed: isGuessed}},
+	})
 }
 
 // /----- GET FUNCTIONS -----/

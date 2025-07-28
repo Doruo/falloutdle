@@ -13,6 +13,10 @@ type GuessRequest struct {
 	CharacterName string `json:"character_name"`
 }
 
+type GuessResponse struct {
+	IsGuessed bool `json:"isGuessed"`
+}
+
 // JSON response handler format
 type Response struct {
 	Success bool   `json:"success"`
@@ -47,7 +51,7 @@ func sendErrorResponse(w http.ResponseWriter, msg string, httpStatus int) {
 }
 
 func sendReponse(w http.ResponseWriter, r Response) {
-	if err := json.NewEncoder(w).Encode(&r); err != nil {
+	if err := json.NewEncoder(w).Encode(r); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 }
@@ -55,16 +59,16 @@ func sendReponse(w http.ResponseWriter, r Response) {
 // /----- UTILITY METHODS -----/
 
 // isGetMethod verify correct GET HTTP method.
-func isGetMethod(method string) bool {
-	return method == http.MethodGet
+func isGetMethod(r *http.Request) bool {
+	return r.Method == http.MethodGet
 }
 
 // isGetMethod verify correct POST HTTP method.
-func isPostMethod(method string) bool {
-	return method == http.MethodPost
+func isPostMethod(r *http.Request) bool {
+	return r.Method == http.MethodPost
 }
 
 // isContentTypeJSON.
-func isContentTypeJSON(h http.Header) bool {
+func isContentTypeJSON(h *http.Header) bool {
 	return h.Get("Content-Type") == "application/json"
 }
