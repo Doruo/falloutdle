@@ -111,6 +111,7 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 	}
 
 	// Read body
+	defer r.Body.Close()
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		sendErrorResponse(w, "Error reading request body", http.StatusBadRequest)
