@@ -12,10 +12,10 @@ import (
 )
 
 type GameHandler struct {
-	gameService *game.GameService
+	gameService *game.Service
 }
 
-func NewGameHandler(gs *game.GameService) *GameHandler {
+func NewGameHandler(gs *game.Service) *GameHandler {
 	return &GameHandler{
 		gameService: gs,
 	}
@@ -147,6 +147,6 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 // /----- GET FUNCTIONS -----/
 
 // HandlePostGuessCharacter receive and process character guess attempt.
-func (handler *GameHandler) GetGameService() *game.GameService {
+func (handler *GameHandler) GetGameService() *game.Service {
 	return handler.gameService
 }

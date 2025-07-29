@@ -9,21 +9,21 @@ import (
 )
 
 // Game logic service
-type GameService struct {
+type Service struct {
 	characterService character.Service
 	repository       Repository
 	currentGame      *Game
 }
 
-func NewGameService(cs *character.Service, repo *Repository) *GameService {
-	return &GameService{
+func NewGameService(cs *character.Service, repo *Repository) *Service {
+	return &Service{
 		characterService: *cs,
 		repository:       *repo,
 	}
 }
 
 // NewCurrentGame creates a new game for today from a RandomCharacter
-func (gs *GameService) NewCurrentGame() (*Game, error) {
+func (gs *Service) NewCurrentGame() (*Game, error) {
 
 	// Retrieves random character from database
 	character, error := gs.getRandomValidCharacter()
@@ -49,7 +49,7 @@ func (gs *GameService) NewCurrentGame() (*Game, error) {
 }
 
 // Add a game into database, returns nil if no error
-func (gs *GameService) Add(g *Game) error {
+func (gs *Service) Add(g *Game) error {
 	if err := gs.repository.Add(g); err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (gs *GameService) Add(g *Game) error {
 
 // /----- GET LOGIC FUNCTIONS -----/
 
-func (gs *GameService) GetCharacterByID(id uint) (*character.Character, error) {
+func (gs *Service) GetCharacterByID(id uint) (*character.Character, error) {
 
 	character, error := gs.characterService.GetByID(id)
 
@@ -69,7 +69,7 @@ func (gs *GameService) GetCharacterByID(id uint) (*character.Character, error) {
 	return character, nil
 }
 
-func (gs *GameService) GetRandomCharacter() (*character.Character, error) {
+func (gs *Service) GetRandomCharacter() (*character.Character, error) {
 
 	// Retrieves random character from database
 	character, error := gs.characterService.GetRandomCharacter()
@@ -81,7 +81,7 @@ func (gs *GameService) GetRandomCharacter() (*character.Character, error) {
 	return character, nil
 }
 
-func (gs *GameService) getRandomValidCharacter() (*character.Character, error) {
+func (gs *Service) getRandomValidCharacter() (*character.Character, error) {
 
 	// Retrieves random character from database
 	character, error := gs.GetRandomCharacter()
@@ -100,7 +100,7 @@ func (gs *GameService) getRandomValidCharacter() (*character.Character, error) {
 
 // GetCurrentCharacter returns today current character.
 // Creates a new one if none found
-func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
+func (gs *Service) GetCurrentCharacter() (*character.Character, error) {
 
 	game, err := gs.GetCurrentGame()
 
@@ -119,7 +119,7 @@ func (gs *GameService) GetCurrentCharacter() (*character.Character, error) {
 
 // GetCurrentGame returns today current game.
 // Creates a new one for if none found
-func (gs *GameService) GetCurrentGame() (*Game, error) {
+func (gs *Service) GetCurrentGame() (*Game, error) {
 
 	// Creates a new one for today if none found
 	if gs.currentGame == nil {
@@ -139,7 +139,7 @@ func (gs *GameService) GetCurrentGame() (*Game, error) {
 
 // /----- POST LOGIC FUNCTIONS -----/
 
-func (gs *GameService) ProcessGuess(name string) (bool, error) {
+func (gs *Service) ProcessGuess(name string) (bool, error) {
 
 	character, err := gs.GetCurrentCharacter()
 

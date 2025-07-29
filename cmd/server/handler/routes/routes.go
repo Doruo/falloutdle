@@ -6,21 +6,38 @@ import (
 	"github.com/doruo/falloutdle/cmd/server/handler"
 )
 
-// GET routes
+// home
 const routeGetHome = "/"
-const routeGetTodayCharacter = "/api/today"
-const routeGetRandomCharacter = "/api/random"
 
-// POST routes
+// Game routes
+// GET
+//const routeGetGames = "/api/games"
+//const rougeGetGame = "/api/games/:id"
+
+// POST
+
+// Character routes
+// GET
+// const routeGetCharacters = "/api/characters"
+// const routeGetCharacter = "/api/characters/:id"
+const routeGetCharacterToday = "/api/characters/today"
+const routeGetCharacterRandom = "/api/characters/random"
+
+// POST
 const routePostGuess = "/api/guess"
 
-func SetupRoutes(mux *http.ServeMux, handler *handler.GameHandler) {
+func SetupGameRoutes(mux *http.ServeMux, gh *handler.GameHandler) {
+	// GET
+	mux.HandleFunc(routeGetHome, gh.HandleGetHome)
+	mux.HandleFunc(routeGetCharacterToday, gh.HandleGetTodayCharacter)
+	mux.HandleFunc(routeGetCharacterRandom, gh.HandleGetRandomCharacter)
 
-	// GET routes
-	mux.HandleFunc(routeGetHome, handler.HandleGetHome)
-	mux.HandleFunc(routeGetTodayCharacter, handler.HandleGetTodayCharacter)
-	mux.HandleFunc(routeGetRandomCharacter, handler.HandleGetRandomCharacter)
+	// POST
+	mux.HandleFunc(routePostGuess, gh.HandlePostGuessCharacter)
+}
 
-	// POST routes
-	mux.HandleFunc(routePostGuess, handler.HandlePostGuessCharacter)
+func SetupCharacterRoutes(mux *http.ServeMux, ch *handler.CharacterHandler) {
+	// GET
+
+	// POST
 }
