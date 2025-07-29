@@ -12,7 +12,7 @@ import (
 
 func TestAddCharacter(t *testing.T) {
 
-	db := database.NewDatabaseConnection()
+	db := database.GetInstance()
 	repository := character.NewCharacterRepository(db)
 	client := wiki.NewWikiClient()
 	title := "Roger_Maxson"

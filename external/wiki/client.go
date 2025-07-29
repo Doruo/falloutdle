@@ -171,15 +171,16 @@ func (w *WikiClient) FetchPageContent(title string) (string, error) {
 
 	// Full wiki api request parse
 	fullURL := w.baseURL + "?" + params.Encode()
-
 	// HTTP request to wiki api
 	resp, err := w.httpClient.Get(fullURL)
+
 	if err != nil {
 		return "", fmt.Errorf("http request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	var wikiResp WikiResponse
+
 	if err := json.NewDecoder(resp.Body).Decode(&wikiResp); err != nil {
 		return "", fmt.Errorf("json decode failed: %w", err)
 	}
@@ -187,14 +188,18 @@ func (w *WikiClient) FetchPageContent(title string) (string, error) {
 	// Extract content from response first page
 	for _, page := range wikiResp.Query.Pages {
 
+		// Error case
 		if page.PageID == -1 {
 			return "", fmt.Errorf("page not found: %s", title)
 		}
+
+		// Content found
 		if len(page.Revisions) > 0 {
 			return page.Revisions[0].Slots.Main.Content, nil
 		}
 	}
 
+	// Content not found
 	return "", fmt.Errorf("no content found for page: %s", title)
 }
 
@@ -207,21 +212,23 @@ func (w *WikiClient) ParseCharacterFromContent(title, content string) (*characte
 	infoboxRegex := regexp.MustCompile(`(?s)\{\{Infobox character(.*?)\}\}`)
 	matches := infoboxRegex.FindStringSubmatch(content)
 
+	// Not Character infobox found case
 	if len(matches) < 1 {
 		return nil, fmt.Errorf("no character infobox found in page: %s", title)
 	}
 
-	infoboxContent := matches[1]
-
-	c := &character.Character{
+	// Default name, will be overridden if 'name' field exists
+	char := &character.Character{
 		WikiTitle: title,
-		Name:      title, // Default name, will be overridden if 'name' field exists
+		Name:      title,
 	}
 
 	// Parse infobox fields
+	infoboxContent := matches[1]
 	lines := strings.Split(infoboxContent, "\n")
 
 	for _, line := range lines {
+
 		line = strings.TrimSpace(line)
 		if !strings.HasPrefix(line, "|") {
 			continue
@@ -246,48 +253,53 @@ func (w *WikiClient) ParseCharacterFromContent(title, content string) (*characte
 		// Parse different fields
 		switch key {
 		case "name":
-			c.Name = w.cleanWikiText(value)
+			char.Name = w.cleanWikiText(value)
 		case "games":
-			c.Games = character.NormalizeGameCodes(value)
+			char.Games = character.NormalizeGameCodes(value)
 		case "mentions":
-			c.Mentions = character.NormalizeGameCodes(value)
+			char.Mentions = character.NormalizeGameCodes(value)
 		case "race":
-			c.Race = w.cleanWikiText(value)
+			char.Race = w.cleanWikiText(value)
 		case "gender":
-			c.Gender = w.cleanWikiText(value)
+			char.Gender = w.cleanWikiText(value)
 		case "status":
-			c.Status = w.cleanWikiText(value)
+			char.Status = w.cleanWikiText(value)
 		case "affiliation":
-			c.Affiliation = w.parseAffiliation(value)
+			char.Affiliation = w.parseAffiliation(value)
 		case "role":
-			c.Role = w.cleanWikiText(value)
+			char.Role = w.cleanWikiText(value)
 		case "titles":
-			c.Titles = w.parseTitles(value)
+			char.Titles = w.parseTitles(value)
 		case "image":
-			c.ImageURL = w.parseImageURL(value)
+			char.ImageURL = w.parseImageURL(value)
 		}
 	}
 
 	// Set main game
-	c.MainGame = c.GetMainGame()
-
-	return c, nil
+	char.MainGame = char.GetMainGame()
+	return char, nil
 }
 
 // /---- UTILITY FUNCTIONS -----/
 
 // cleanWikiText removes wiki markup from text
 func (w *WikiClient) cleanWikiText(text string) string {
+
 	// Remove wiki links [[Text]] or [[Link|Text]]
 	linkRegex := regexp.MustCompile(`\[\[([^\]|]+)(\|[^\]]+)?\]\]`)
+
 	text = linkRegex.ReplaceAllStringFunc(text, func(match string) string {
+
 		// Extract the display text (after |) or the link text
 		if strings.Contains(match, "|") {
+
 			parts := strings.Split(match, "|")
+
 			if len(parts) > 1 {
 				return strings.TrimSuffix(parts[1], "]]")
 			}
 		}
+
 		// Remove [[ and ]]
 		return strings.TrimSuffix(strings.TrimPrefix(match, "[["), "]]")
 	})
@@ -308,16 +320,19 @@ func (w *WikiClient) cleanWikiText(text string) string {
 
 // parseAffiliation parses affiliation field which can be a list
 func (w *WikiClient) parseAffiliation(value string) []string {
+
 	// Split by * or newlines for list items
 	lines := strings.Split(value, "\n")
 	var affiliations []string
 
 	for _, line := range lines {
+
 		line = strings.TrimSpace(line)
 		line = strings.TrimPrefix(line, "*")
 		line = strings.TrimSpace(line)
 
 		if line != "" {
+
 			clean := w.cleanWikiText(line)
 			if clean != "" {
 				affiliations = append(affiliations, clean)
@@ -327,26 +342,29 @@ func (w *WikiClient) parseAffiliation(value string) []string {
 
 	// If no list format, try comma separation
 	if len(affiliations) == 0 {
-		parts := strings.Split(value, ",")
-		for _, part := range parts {
+
+		parts := strings.SplitSeq(value, ",")
+		for part := range parts {
+
 			clean := w.cleanWikiText(strings.TrimSpace(part))
 			if clean != "" {
 				affiliations = append(affiliations, clean)
 			}
 		}
 	}
-
 	return affiliations
 }
 
 // parseTitles parses titles field
 func (w *WikiClient) parseTitles(value string) []string {
+
 	// Titles are often quoted strings
 	titleRegex := regexp.MustCompile(`"([^"]+)"`)
 	matches := titleRegex.FindAllStringSubmatch(value, -1)
 
 	var titles []string
 	for _, match := range matches {
+
 		if len(match) > 1 {
 			titles = append(titles, match[1])
 		}

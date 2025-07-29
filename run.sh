@@ -23,7 +23,7 @@ PROJECT_NAME="falloutdle"
 PROJECT_PATH="$HOME/dev/$PROJECT_NAME"
 
 # Main config
-MAIN_PATH="server"                    # Default server path
+MAIN_PATH="cmd/server"                    # Default server path
 MAIN_FILE="main.go"                       # Main executable file
 FULL_PATH="$PROJECT_PATH/$MAIN_PATH"
 

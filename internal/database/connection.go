@@ -6,10 +6,22 @@ import (
 	"os"
 
 	"github.com/doruo/falloutdle/internal/character"
+	"github.com/doruo/falloutdle/internal/game"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
+
+// Single pattern for single database connection.
+var instance *gorm.DB
+
+// GetInstance returns a single instance.
+// Creates a new one if nil.
+func GetInstance() *gorm.DB {
+	if instance == nil {
+		instance = NewDatabaseConnection()
+	}
+	return instance
+}
 
 // NewDatabaseConnection creates and returns a new database connection instance
 func NewDatabaseConnection() (db *gorm.DB) {
@@ -23,9 +35,7 @@ func NewDatabaseConnection() (db *gorm.DB) {
 		os.Getenv("DB_SSLMODE"),
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info), // Logs SQL (only on dev)
-	})
+	db, err := gorm.Open(postgres.Open(dsn))
 
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -34,7 +44,12 @@ func NewDatabaseConnection() (db *gorm.DB) {
 	// Auto-migration
 	err = db.AutoMigrate(&character.Character{})
 	if err != nil {
-		log.Fatal("Failed to migrate:", err)
+		log.Fatal("Failed to migrate Character :", err)
+	}
+
+	err = db.AutoMigrate(&game.Game{})
+	if err != nil {
+		log.Fatal("Failed to migrate: Game", err)
 	}
 
 	return
