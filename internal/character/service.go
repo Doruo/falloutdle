@@ -19,6 +19,37 @@ func NewCharacterService(repo *Repository) *Service {
 
 // /----- GET FUNCTIONS -----/
 
+func (s *Service) GetCharacters() ([]Character, error) {
+
+	characters, err := s.repository.GetAll(0, 0)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get characters: %w", err)
+	}
+
+	return characters, nil
+}
+
+// GetValidCharacters retrieves all valid characters for the game
+func (s *Service) GetValidCharacters() ([]Character, error) {
+
+	characters, err := s.GetCharacters()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get characters: %w", err)
+	}
+
+	// Filter valid characters for the game
+	var validCharacters []Character
+	for _, char := range characters {
+		if s.IsValidForGame(&char) {
+			validCharacters = append(validCharacters, char)
+		}
+	}
+
+	return validCharacters, nil
+}
+
 // GetByID retrieves a character by ID
 func (s *Service) GetByID(id uint) (*Character, error) {
 
@@ -48,30 +79,10 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 	return char, nil
 }
 
-// GetAllValidCharacters retrieves all valid characters for the game
-func (s *Service) GetAllValidCharacters() ([]Character, error) {
-
-	characters, err := s.repository.GetAll(0, 0)
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to get characters: %w", err)
-	}
-
-	// Filter valid characters for the game
-	var validCharacters []Character
-	for _, char := range characters {
-		if s.IsValidForGame(&char) {
-			validCharacters = append(validCharacters, char)
-		}
-	}
-
-	return validCharacters, nil
-}
-
 // GetRandomCharacter selects a random character
 func (s *Service) GetRandomCharacter() (*Character, error) {
 
-	characters, err := s.GetAllValidCharacters()
+	characters, err := s.GetValidCharacters()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get characters: %w", err)
 	}

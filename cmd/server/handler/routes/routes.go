@@ -15,16 +15,15 @@ const routeGetHome = "/"
 //const rougeGetGame = "/api/games/:id"
 
 // POST
+const routePostGuess = "/api/guess"
 
 // Character routes
 // GET
-// const routeGetCharacters = "/api/characters"
+const routeGetCharacters = "/api/characters"
+
 // const routeGetCharacter = "/api/characters/:id"
 const routeGetCharacterToday = "/api/characters/today"
 const routeGetCharacterRandom = "/api/characters/random"
-
-// POST
-const routePostGuess = "/api/guess"
 
 func SetupGameRoutes(mux *http.ServeMux, gh *handler.GameHandler) {
 	// GET
@@ -38,6 +37,5 @@ func SetupGameRoutes(mux *http.ServeMux, gh *handler.GameHandler) {
 
 func SetupCharacterRoutes(mux *http.ServeMux, ch *handler.CharacterHandler) {
 	// GET
-
-	// POST
+	mux.HandleFunc(routeGetCharacters, ch.HandleGetCharacters)
 }

@@ -19,9 +19,10 @@ type GuessResponse struct {
 
 // JSON response handler format
 type Response struct {
-	Success bool   `json:"success"`
-	Data    []any  `json:"data,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Success    bool   `json:"success"`
+	Data       any    `json:"data,omitempty"`
+	DataLength int    `json:"length,omitempty"`
+	Error      string `json:"error,omitempty"`
 }
 
 // /----- SEND RESPONSE METHODS -----/

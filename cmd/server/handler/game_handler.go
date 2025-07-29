@@ -24,7 +24,7 @@ func NewGameHandler(gs *game.Service) *GameHandler {
 // /----- HTTP GET -----/
 
 // HandleGetHome
-func (handler *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling GET request: home page ...")
 
@@ -44,7 +44,7 @@ func (handler *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request
 }
 
 // HandleGetTodayCharacter returns today guess character.
-func (handler *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("API - handling GET request: today character")
 
@@ -54,7 +54,7 @@ func (handler *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *ht
 		return
 	}
 
-	character, error := handler.gameService.GetCurrentCharacter()
+	character, error := h.gameService.GetCurrentCharacter()
 
 	if error != nil {
 		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
@@ -63,12 +63,12 @@ func (handler *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *ht
 
 	sendJSONResponse(w, Response{
 		Success: true,
-		Data:    []any{character},
+		Data:    character,
 	})
 }
 
 // HandleGetRandomCharacter returns random character from fallout games.
-func (handler *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling GET request: random character")
 
@@ -78,7 +78,7 @@ func (handler *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *h
 		return
 	}
 
-	character, error := handler.gameService.GetRandomCharacter()
+	character, error := h.gameService.GetRandomCharacter()
 
 	if error != nil {
 		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
@@ -87,14 +87,14 @@ func (handler *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *h
 
 	sendJSONResponse(w, Response{
 		Success: true,
-		Data:    []any{character},
+		Data:    character,
 	})
 }
 
 // /----- HTTP POST -----/
 
 // HandlePostGuessCharacter receive and process character guess attempt.
-func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling POST request: guess character")
 
@@ -129,7 +129,7 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 
 	name := result["character_name"]
 	fmt.Println("Guess value:", name)
-	isGuessed, err := handler.gameService.ProcessGuess(name)
+	isGuessed, err := h.gameService.ProcessGuess(name)
 
 	if err != nil {
 		sendErrorResponse(w, err.Error(), http.StatusInternalServerError)
@@ -140,13 +140,13 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 
 	sendJSONResponse(w, Response{
 		Success: true,
-		Data:    []any{GuessResponse{IsGuessed: isGuessed}},
+		Data:    GuessResponse{IsGuessed: isGuessed},
 	})
 }
 
 // /----- GET FUNCTIONS -----/
 
 // HandlePostGuessCharacter receive and process character guess attempt.
-func (handler *GameHandler) GetGameService() *game.Service {
-	return handler.gameService
+func (h *GameHandler) GetGameService() *game.Service {
+	return h.gameService
 }
