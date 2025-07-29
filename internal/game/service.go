@@ -48,6 +48,8 @@ func (gs *Service) NewCurrentGame() (*Game, error) {
 	return game, nil
 }
 
+// /----- CREATE LOGIC FUNCTIONS -----/
+
 // Add a game into database, returns nil if no error
 func (gs *Service) Add(g *Game) error {
 	if err := gs.repository.Add(g); err != nil {
@@ -57,6 +59,17 @@ func (gs *Service) Add(g *Game) error {
 }
 
 // /----- GET LOGIC FUNCTIONS -----/
+
+func (gs *Service) GetGames() ([]Game, error) {
+
+	games, error := gs.repository.GetAll(0, 0)
+
+	if error != nil {
+		return nil, error
+	}
+
+	return games, nil
+}
 
 func (gs *Service) GetCharacterByID(id uint) (*character.Character, error) {
 

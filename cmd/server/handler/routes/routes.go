@@ -11,7 +11,8 @@ const routeGetHome = "/"
 
 // Game routes
 // GET
-//const routeGetGames = "/api/games"
+const routeGetGames = "/api/games"
+
 //const rougeGetGame = "/api/games/:id"
 
 // POST
@@ -26,8 +27,12 @@ const routeGetCharacterToday = "/api/characters/today"
 const routeGetCharacterRandom = "/api/characters/random"
 
 func SetupGameRoutes(mux *http.ServeMux, gh *handler.GameHandler) {
-	// GET
+
+	// HOME
 	mux.HandleFunc(routeGetHome, gh.HandleGetHome)
+
+	// GET
+	mux.HandleFunc(routeGetGames, gh.HandleGetGames)
 	mux.HandleFunc(routeGetCharacterToday, gh.HandleGetTodayCharacter)
 	mux.HandleFunc(routeGetCharacterRandom, gh.HandleGetRandomCharacter)
 
