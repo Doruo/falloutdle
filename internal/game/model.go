@@ -6,13 +6,14 @@ import (
 
 // Game represents a game state.
 type Game struct {
-	Date        time.Time `json:"date" gorm:"primaryKey;"`
-	CharacterID uint      `json:"id" gorm:"characterID;"`
+	Id          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	Date        time.Time `json:"date" gorm:"date;"`
+	CharacterID uint      `json:"character_id" gorm:"characterID,omitEmpty;"`
 }
 
 func NewGame(id uint) *Game {
 	return &Game{
-		Date:        time.Now(),
-		CharacterID: id,
+		Id:   id,
+		Date: time.Now(),
 	}
 }

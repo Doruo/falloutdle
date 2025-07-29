@@ -91,30 +91,6 @@ func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Req
 	})
 }
 
-// HandleGetRandomCharacter returns random character from fallout games.
-func (h *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println(time.Today(), "API - handling GET request: random character")
-
-	// Verify correct http method
-	if !isGetMethod(r) {
-		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	character, error := h.gameService.GetRandomCharacter()
-
-	if error != nil {
-		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
-		return
-	}
-
-	sendJSONResponse(w, Response{
-		Success: true,
-		Data:    character,
-	})
-}
-
 // /----- HTTP POST -----/
 
 // HandlePostGuessCharacter receive and process character guess attempt.

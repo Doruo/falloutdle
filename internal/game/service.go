@@ -26,7 +26,7 @@ func NewGameService(cs *character.Service, repo *Repository) *Service {
 func (gs *Service) NewCurrentGame() (*Game, error) {
 
 	// Retrieves random character from database
-	character, error := gs.getRandomValidCharacter()
+	character, error := gs.getCharacterValidRandom()
 
 	// Retrieves another character if not valid
 	for !gs.characterService.IsValidForGame(character) {
@@ -35,11 +35,11 @@ func (gs *Service) NewCurrentGame() (*Game, error) {
 			return nil, error
 		}
 
-		character, error = gs.getRandomValidCharacter()
+		character, error = gs.getCharacterValidRandom()
 	}
 
 	// Marks character or update played date
-	gs.characterService.UpdateAsPlayed(character.ID)
+	gs.characterService.UpdateCharacterAsPlayed(character.ID)
 
 	// Create and save game into database
 	game := NewGame(character.ID)
@@ -71,33 +71,10 @@ func (gs *Service) GetGames() ([]Game, error) {
 	return games, nil
 }
 
-func (gs *Service) GetCharacterByID(id uint) (*character.Character, error) {
-
-	character, error := gs.characterService.GetByID(id)
-
-	if error != nil {
-		return nil, error
-	}
-
-	return character, nil
-}
-
-func (gs *Service) GetRandomCharacter() (*character.Character, error) {
+func (gs *Service) getCharacterValidRandom() (*character.Character, error) {
 
 	// Retrieves random character from database
-	character, error := gs.characterService.GetRandomCharacter()
-
-	if error != nil {
-		return nil, error
-	}
-
-	return character, nil
-}
-
-func (gs *Service) getRandomValidCharacter() (*character.Character, error) {
-
-	// Retrieves random character from database
-	character, error := gs.GetRandomCharacter()
+	character, error := gs.characterService.GetCharacterRandom()
 
 	// Retrieves another character if not valid
 	for !gs.characterService.IsValidForGame(character) {
@@ -105,7 +82,7 @@ func (gs *Service) getRandomValidCharacter() (*character.Character, error) {
 		if error != nil {
 			return nil, error
 		}
-		character, error = gs.GetRandomCharacter()
+		character, error = gs.characterService.GetCharacterRandom()
 	}
 
 	return character, nil
@@ -115,13 +92,13 @@ func (gs *Service) getRandomValidCharacter() (*character.Character, error) {
 // Creates a new one if none found
 func (gs *Service) GetCurrentCharacter() (*character.Character, error) {
 
-	game, err := gs.GetCurrentGame()
+	game, err := gs.GetGameCurrent()
 
 	if err != nil {
 		return nil, err
 	}
 
-	character, err := gs.GetCharacterByID(game.CharacterID)
+	character, err := gs.characterService.GetCharacterByID(game.CharacterID)
 
 	if err != nil {
 		return nil, err
@@ -130,9 +107,9 @@ func (gs *Service) GetCurrentCharacter() (*character.Character, error) {
 	return character, nil
 }
 
-// GetCurrentGame returns today current game.
+// GetGameCurrent returns today current game.
 // Creates a new one for if none found
-func (gs *Service) GetCurrentGame() (*Game, error) {
+func (gs *Service) GetGameCurrent() (*Game, error) {
 
 	// Creates a new one for today if none found
 	if gs.currentGame == nil {
@@ -160,11 +137,11 @@ func (gs *Service) ProcessGuess(name string) (bool, error) {
 		return false, err
 	}
 
-	return isCorrect(name, character.Name), nil
+	return isGuessCorrect(name, character.Name), nil
 }
 
-// isCorrect returns true if name guessed corresponds to the correct character name
-func isCorrect(guessName string, correctName string) bool {
+// isGuessCorrect returns true if name guessed corresponds to the correct character name
+func isGuessCorrect(guessName string, correctName string) bool {
 
 	if guessName == correctName {
 		return true

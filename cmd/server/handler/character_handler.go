@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/doruo/falloutdle/internal/character"
+	"github.com/doruo/falloutdle/pkg/time"
 )
 
 type CharacterHandler struct {
@@ -39,5 +40,29 @@ func (h *CharacterHandler) HandleGetCharacters(w http.ResponseWriter, r *http.Re
 		Success:    true,
 		Data:       characters,
 		DataLength: len(characters),
+	})
+}
+
+// HandleGetRandomCharacter returns random character from fallout games.
+func (h *CharacterHandler) HandleGetCharacterRandom(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println(time.Today(), "API - handling GET request: random character")
+
+	// Verify correct http method
+	if !isGetMethod(r) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	character, error := h.characterService.GetCharacterRandom()
+
+	if error != nil {
+		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
+		return
+	}
+
+	sendJSONResponse(w, Response{
+		Success: true,
+		Data:    character,
 	})
 }

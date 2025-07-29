@@ -26,21 +26,20 @@ const routeGetCharacters = "/api/characters"
 const routeGetCharacterToday = "/api/characters/today"
 const routeGetCharacterRandom = "/api/characters/random"
 
-func SetupGameRoutes(mux *http.ServeMux, gh *handler.GameHandler) {
-
+func SetupGameRoutes(mux *http.ServeMux, h *handler.GameHandler) {
 	// HOME
-	mux.HandleFunc(routeGetHome, gh.HandleGetHome)
+	mux.HandleFunc(routeGetHome, h.HandleGetHome)
 
 	// GET
-	mux.HandleFunc(routeGetGames, gh.HandleGetGames)
-	mux.HandleFunc(routeGetCharacterToday, gh.HandleGetTodayCharacter)
-	mux.HandleFunc(routeGetCharacterRandom, gh.HandleGetRandomCharacter)
+	mux.HandleFunc(routeGetGames, h.HandleGetGames)
+	mux.HandleFunc(routeGetCharacterToday, h.HandleGetTodayCharacter)
 
 	// POST
-	mux.HandleFunc(routePostGuess, gh.HandlePostGuessCharacter)
+	mux.HandleFunc(routePostGuess, h.HandlePostGuessCharacter)
 }
 
-func SetupCharacterRoutes(mux *http.ServeMux, ch *handler.CharacterHandler) {
+func SetupCharacterRoutes(mux *http.ServeMux, h *handler.CharacterHandler) {
 	// GET
-	mux.HandleFunc(routeGetCharacters, ch.HandleGetCharacters)
+	mux.HandleFunc(routeGetCharacters, h.HandleGetCharacters)
+	mux.HandleFunc(routeGetCharacterRandom, h.HandleGetCharacterRandom)
 }

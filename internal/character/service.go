@@ -30,8 +30,8 @@ func (s *Service) GetCharacters() ([]Character, error) {
 	return characters, nil
 }
 
-// GetValidCharacters retrieves all valid characters for the game
-func (s *Service) GetValidCharacters() ([]Character, error) {
+// GetCharactersValid retrieves all valid characters for the game
+func (s *Service) GetCharactersValid() ([]Character, error) {
 
 	characters, err := s.GetCharacters()
 
@@ -50,8 +50,8 @@ func (s *Service) GetValidCharacters() ([]Character, error) {
 	return validCharacters, nil
 }
 
-// GetByID retrieves a character by ID
-func (s *Service) GetByID(id uint) (*Character, error) {
+// GetCharacterByID retrieves a character by ID
+func (s *Service) GetCharacterByID(id uint) (*Character, error) {
 
 	if id <= 0 {
 		return nil, errors.New("invalid ID")
@@ -79,10 +79,10 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 	return char, nil
 }
 
-// GetRandomCharacter selects a random character
-func (s *Service) GetRandomCharacter() (*Character, error) {
+// GetCharacterRandom selects a random character
+func (s *Service) GetCharacterRandom() (*Character, error) {
 
-	characters, err := s.GetValidCharacters()
+	characters, err := s.GetCharactersValid()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get characters: %w", err)
 	}
@@ -98,8 +98,8 @@ func (s *Service) GetRandomCharacter() (*Character, error) {
 
 // /----- UTILITY FUNCTIONS -----/
 
-// UpdateAsPlayed marks a character as played or updates his date if already played
-func (s *Service) UpdateAsPlayed(id uint) error {
+// UpdateCharacterAsPlayed marks a character as played or updates his date if already played
+func (s *Service) UpdateCharacterAsPlayed(id uint) error {
 
 	if id <= 0 {
 		return errors.New("invalid character ID")
@@ -120,8 +120,8 @@ func (s *Service) UpdateAsPlayed(id uint) error {
 	return nil
 }
 
-// UpdateAsUnplayed set a character as unplayed
-func (s *Service) UpdateAsUnplayed(id uint) error {
+// UpdateCharacterAsUnplayed set a character as unplayed
+func (s *Service) UpdateCharacterAsUnplayed(id uint) error {
 
 	if id <= 0 {
 		return errors.New("invalid character ID")
