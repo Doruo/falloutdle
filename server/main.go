@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/doruo/falloutdle/cmd/server/handler"
-	"github.com/doruo/falloutdle/cmd/server/handler/routes"
 	"github.com/doruo/falloutdle/internal/character"
 	"github.com/doruo/falloutdle/internal/database"
 	"github.com/doruo/falloutdle/internal/game"
+	"github.com/doruo/falloutdle/server/handler"
+	"github.com/doruo/falloutdle/server/routes"
 )
 
 func main() {

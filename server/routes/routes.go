@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/doruo/falloutdle/cmd/server/handler"
+	"github.com/doruo/falloutdle/server/handler"
 )
 
 // Setups static handler api routes.
