@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/doruo/falloutdle/internal/character"
 	"github.com/doruo/falloutdle/pkg/strutils"
@@ -80,6 +81,16 @@ func (s *Service) GetGameByID(id uint) (*Game, error) {
 	game, error := s.repository.GetByID(id)
 	if error != nil {
 		return nil, fmt.Errorf("failed to get game from ID %d: %w", id, error)
+	}
+
+	return game, nil
+}
+
+func (s *Service) GetGameByDate(date time.Time) (*Game, error) {
+
+	game, error := s.repository.GetByDate(date)
+	if error != nil {
+		return nil, fmt.Errorf("failed to get game from date %d: %w", date, error)
 	}
 
 	return game, nil
