@@ -11,20 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// Single pattern for single database connection.
-var instance *gorm.DB
-
-// GetInstance returns a single instance.
-// Creates a new one if nil.
-func GetInstance() *gorm.DB {
-	if instance == nil {
-		instance = NewDatabaseConnection()
-	}
-	return instance
-}
-
 // NewDatabaseConnection creates and returns a new database connection instance
 func NewDatabaseConnection() (db *gorm.DB) {
+
 	// Database connection
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
@@ -44,12 +33,12 @@ func NewDatabaseConnection() (db *gorm.DB) {
 	// Auto-migration
 	error = db.AutoMigrate(&character.Character{})
 	if error != nil {
-		log.Fatal("Failed to migrate Character :", error)
+		log.Fatal("Failed to migrate table Character:", error)
 	}
 
 	error = db.AutoMigrate(&game.Game{})
 	if error != nil {
-		log.Fatal("Failed to migrate: Game", error)
+		log.Fatal("Failed to migrate table Game:", error)
 	}
 
 	return
