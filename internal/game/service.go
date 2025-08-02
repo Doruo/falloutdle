@@ -97,8 +97,7 @@ func (gs *Service) GetCurrentCharacter() (*character.Character, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	character, err := gs.characterService.GetCharacterByID(game.CharacterID)
+	character, err := gs.characterService.GetCharacterByID(game.CharacterId)
 
 	if err != nil {
 		return nil, err

@@ -81,7 +81,7 @@ func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Req
 	character, error := h.gameService.GetCurrentCharacter()
 
 	if error != nil {
-		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
+		sendErrorResponse(w, "Error while getting character: "+error.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -93,8 +93,8 @@ func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Req
 
 // /----- HTTP POST -----/
 
-// HandlePostGuessCharacter receive and process character guess attempt.
-func (h *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *http.Request) {
+// HandlePostGuess receive and process character guess attempt.
+func (h *GameHandler) HandlePostGuess(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling POST request: guess character")
 

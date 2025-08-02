@@ -57,7 +57,7 @@ func (h *CharacterHandler) HandleGetCharacterRandom(w http.ResponseWriter, r *ht
 	character, error := h.characterService.GetCharacterRandom()
 
 	if error != nil {
-		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
+		sendErrorResponse(w, "Error while getting character:"+error.Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -35,7 +35,7 @@ func SetupGameRoutes(mux *http.ServeMux, h *handler.GameHandler) {
 	mux.HandleFunc(routeGetCharacterToday, h.HandleGetTodayCharacter)
 
 	// POST
-	mux.HandleFunc(routePostGuess, h.HandlePostGuessCharacter)
+	mux.HandleFunc(routePostGuess, h.HandlePostGuess)
 }
 
 func SetupCharacterRoutes(mux *http.ServeMux, h *handler.CharacterHandler) {
