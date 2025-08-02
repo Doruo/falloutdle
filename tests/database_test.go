@@ -17,9 +17,9 @@ func TestAddCharacter(t *testing.T) {
 	client := wiki.NewWikiClient()
 	title := "Roger_Maxson"
 
-	char, err := client.FetchCharacterByName(title)
-	if err != nil {
-		log.Printf("Error while fetching character %s: %v", title, err)
+	char, error := client.FetchCharacterByName(title)
+	if error != nil {
+		log.Printf("Error while fetching character %s: %v", title, error)
 	}
 
 	fmt.Println("/--- CHARACTER ---/")
@@ -33,9 +33,9 @@ func TestAddCharacter(t *testing.T) {
 	repository.Add(char)
 
 	fmt.Println("/--- SELECT ---/")
-	result, err := repository.GetByWikiTitle(title)
-	if err != nil {
-		log.Printf("Error while fetching character %s: %v", title, err)
+	result, error := repository.GetByWikiTitle(title)
+	if error != nil {
+		log.Printf("Error while fetching character %s: %v", title, error)
 	}
 
 	fmt.Println(result.String())

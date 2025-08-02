@@ -19,9 +19,10 @@ type GuessResponse struct {
 
 // JSON response handler format
 type Response struct {
-	Success bool   `json:"success"`
-	Data    []any  `json:"data,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Success    bool   `json:"success"`
+	Data       any    `json:"data,omitempty"`
+	DataLength int    `json:"length,omitempty"`
+	Error      string `json:"error,omitempty"`
 }
 
 // /----- SEND RESPONSE METHODS -----/
@@ -51,7 +52,7 @@ func sendErrorResponse(w http.ResponseWriter, msg string, httpStatus int) {
 }
 
 func sendReponse(w http.ResponseWriter, r Response) {
-	if err := json.NewEncoder(w).Encode(r); err != nil {
+	if error := json.NewEncoder(w).Encode(r); error != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 }

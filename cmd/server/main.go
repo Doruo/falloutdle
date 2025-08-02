@@ -18,20 +18,22 @@ func main() {
 	db := database.GetInstance()
 
 	// Character
-	charRepo := character.NewCharacterRepository(db)
-	charService := character.NewCharacterService(charRepo)
+	characterRepo := character.NewCharacterRepository(db)
+	characterService := character.NewCharacterService(characterRepo)
 
 	// Game
 	gameRepo := game.NewgameRepository(db)
-	gameService := game.NewGameService(charService, gameRepo)
-	handler := handler.NewGameHandler(gameService)
+	gameService := game.NewGameService(characterService, gameRepo)
+	gameService.GetGameCurrent() // Creates a new game if nil
 
-	// Creates a new game if nil
-	handler.GetGameService().GetCurrentGame()
+	// Handlers
+	characterHandler := handler.NewCharacterHandler(characterService)
+	gameHandler := handler.NewGameHandler(gameService)
 
 	// Server and routes setup
 	mux := http.NewServeMux()
-	routes.SetupRoutes(mux, handler)
+	routes.SetupGameRoutes(mux, gameHandler)
+	routes.SetupCharacterRoutes(mux, characterHandler)
 
 	// Port listening
 	host := os.Getenv("HOST")

@@ -17,7 +17,7 @@ func NewgameRepository(db *gorm.DB) *Repository {
 
 // /----- CREATE -----/
 
-// Add creates a new game record in the database
+// Add creates a new game record in the database.
 func (r *Repository) Add(game *Game) error {
 
 	result := r.db.Create(game)
@@ -30,7 +30,7 @@ func (r *Repository) Add(game *Game) error {
 
 // /----- READ -----/
 
-// GetAll retrieves all games with optional pagination
+// GetAll retrieves all games with optional pagination.
 func (r *Repository) GetAll(limit, offset int) ([]Game, error) {
 
 	var games []Game
@@ -50,7 +50,7 @@ func (r *Repository) GetAll(limit, offset int) ([]Game, error) {
 	return games, nil
 }
 
-// GetByID retrieves a game by its ID
+// GetByID retrieves a game by its ID.
 func (r *Repository) GetByID(id uint) (*Game, error) {
 
 	var game Game
@@ -66,7 +66,7 @@ func (r *Repository) GetByID(id uint) (*Game, error) {
 	return &game, nil
 }
 
-// GetByDate retrieves a game by its date
+// GetByDate retrieves a game by its date.
 func (r *Repository) GetByDate(date time.Time) (*Game, error) {
 
 	var game Game
@@ -84,7 +84,7 @@ func (r *Repository) GetByDate(date time.Time) (*Game, error) {
 
 // /----- UPDATE -----/
 
-// Update modifies an existing game
+// Update modifies an existing game.
 func (r *Repository) Update(game *Game) error {
 
 	if game == nil {
@@ -105,7 +105,7 @@ func (r *Repository) Update(game *Game) error {
 
 // /----- DELETE -----/
 
-// Delete removes a game by ID
+// Delete removes a game by ID.
 func (r *Repository) DeleteByID(id uint) error {
 	if id == 0 {
 		return errors.New("invalid game ID")

@@ -36,6 +36,7 @@ type Character struct {
 
 // NewCharacter creates a new Character instance
 func NewCharacter(name, wikiTitle string) *Character {
+
 	return &Character{
 		Name:        name,
 		WikiTitle:   wikiTitle,
@@ -43,6 +44,20 @@ func NewCharacter(name, wikiTitle string) *Character {
 		Mentions:    make([]string, 0),
 		Affiliation: make([]string, 0),
 		Titles:      make([]string, 0),
+	}
+}
+
+func NewCompleteCharacter(
+	name, wikiTitle string,
+	games, mentions, affiliation, titles []string) *Character {
+
+	return &Character{
+		Name:        name,
+		WikiTitle:   wikiTitle,
+		Games:       games,
+		Mentions:    mentions,
+		Affiliation: affiliation,
+		Titles:      titles,
 	}
 }
 

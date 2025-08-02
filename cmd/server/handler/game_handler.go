@@ -12,10 +12,10 @@ import (
 )
 
 type GameHandler struct {
-	gameService *game.GameService
+	gameService *game.Service
 }
 
-func NewGameHandler(gs *game.GameService) *GameHandler {
+func NewGameHandler(gs *game.Service) *GameHandler {
 	return &GameHandler{
 		gameService: gs,
 	}
@@ -24,7 +24,7 @@ func NewGameHandler(gs *game.GameService) *GameHandler {
 // /----- HTTP GET -----/
 
 // HandleGetHome
-func (handler *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling GET request: home page ...")
 
@@ -35,16 +35,63 @@ func (handler *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request
 	}
 
 	const url = "./index.html"
-	content, err := os.ReadFile(url)
-	if err != nil {
-		fmt.Println("Error: ", err)
+	content, error := os.ReadFile(url)
+	if error != nil {
+		fmt.Println("Error: ", error)
 	}
 
 	sendHTMLResponse(w, content)
 }
 
+func (h *GameHandler) HandleGetGames(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("API - handling GET request: all games")
+
+	// Verify correct http method
+	if !isGetMethod(r) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	games, error := h.gameService.GetGames()
+
+	if error != nil {
+		sendErrorResponse(w, "Error while getting games", http.StatusInternalServerError)
+		return
+	}
+
+	sendJSONResponse(w, Response{
+		Success:    true,
+		Data:       games,
+		DataLength: len(games),
+	})
+}
+
+func (h *GameHandler) HandleGetGameToday(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("API - handling GET request: today game")
+
+	// Verify correct http method
+	if !isGetMethod(r) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	game, error := h.gameService.GetGameCurrent()
+
+	if error != nil {
+		sendErrorResponse(w, "Error while getting character: "+error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sendJSONResponse(w, Response{
+		Success: true,
+		Data:    game,
+	})
+}
+
 // HandleGetTodayCharacter returns today guess character.
-func (handler *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("API - handling GET request: today character")
 
@@ -54,47 +101,23 @@ func (handler *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *ht
 		return
 	}
 
-	character, error := handler.gameService.GetCurrentCharacter()
+	character, error := h.gameService.GetGameCurrentCharacter()
 
 	if error != nil {
-		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
+		sendErrorResponse(w, "Error while getting character: "+error.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	sendJSONResponse(w, Response{
 		Success: true,
-		Data:    []any{character},
-	})
-}
-
-// HandleGetRandomCharacter returns random character from fallout games.
-func (handler *GameHandler) HandleGetRandomCharacter(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println(time.Today(), "API - handling GET request: random character")
-
-	// Verify correct http method
-	if !isGetMethod(r) {
-		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	character, error := handler.gameService.GetRandomCharacter()
-
-	if error != nil {
-		sendErrorResponse(w, "Error while getting character", http.StatusInternalServerError)
-		return
-	}
-
-	sendJSONResponse(w, Response{
-		Success: true,
-		Data:    []any{character},
+		Data:    character,
 	})
 }
 
 // /----- HTTP POST -----/
 
-// HandlePostGuessCharacter receive and process character guess attempt.
-func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *http.Request) {
+// HandlePostGuess receive and process character guess attempt.
+func (h *GameHandler) HandlePostGuess(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(time.Today(), "API - handling POST request: guess character")
 
@@ -112,27 +135,27 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 
 	// Read body
 	defer r.Body.Close()
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
+	body, error := io.ReadAll(r.Body)
+	if error != nil {
 		sendErrorResponse(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
 	// Parse result result
 	var result map[string]string
-	err = json.Unmarshal(body, &result)
+	error = json.Unmarshal(body, &result)
 
-	if err != nil {
-		sendErrorResponse(w, err.Error(), http.StatusBadRequest)
+	if error != nil {
+		sendErrorResponse(w, error.Error(), http.StatusBadRequest)
 		return
 	}
 
 	name := result["character_name"]
 	fmt.Println("Guess value:", name)
-	isGuessed, err := handler.gameService.ProcessGuess(name)
+	isGuessed, error := h.gameService.ProcessGuess(name)
 
-	if err != nil {
-		sendErrorResponse(w, err.Error(), http.StatusInternalServerError)
+	if error != nil {
+		sendErrorResponse(w, error.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -140,13 +163,13 @@ func (handler *GameHandler) HandlePostGuessCharacter(w http.ResponseWriter, r *h
 
 	sendJSONResponse(w, Response{
 		Success: true,
-		Data:    []any{GuessResponse{IsGuessed: isGuessed}},
+		Data:    GuessResponse{IsGuessed: isGuessed},
 	})
 }
 
 // /----- GET FUNCTIONS -----/
 
 // HandlePostGuessCharacter receive and process character guess attempt.
-func (handler *GameHandler) GetGameService() *game.GameService {
-	return handler.gameService
+func (h *GameHandler) GetGameService() *game.Service {
+	return h.gameService
 }

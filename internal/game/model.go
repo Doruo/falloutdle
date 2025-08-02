@@ -4,15 +4,16 @@ import (
 	"time"
 )
 
-// Game represents a game state.
+// Game struct represents a game state.
 type Game struct {
-	Date        time.Time `json:"date" gorm:"primaryKey;"`
-	CharacterID uint      `json:"id" gorm:"characterID;"`
+	Id          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	Date        time.Time `json:"date" gorm:"date;"`
+	CharacterId uint      `json:"character_id" gorm:"characterID,omitEmpty;"`
 }
 
-func NewGame(id uint) *Game {
+func NewGame(charId uint) *Game {
 	return &Game{
 		Date:        time.Now(),
-		CharacterID: id,
+		CharacterId: charId,
 	}
 }
