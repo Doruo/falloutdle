@@ -69,8 +69,8 @@ func (h *GameHandler) HandleGetGameToday(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// HandleGetTodayCharacter returns today guess character.
-func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Request) {
+// HandleGetGameTodayCharacter returns today guess character.
+func (h *GameHandler) HandleGetGameTodayCharacter(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("API - handling GET request: today character")
 

@@ -33,12 +33,6 @@ func sendJSONResponse(w http.ResponseWriter, r Response) {
 	sendReponse(w, r)
 }
 
-// sendHTMLResponse sends response with content in HTML format.
-func sendHTMLResponse(w http.ResponseWriter, content []byte) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write(content)
-}
-
 // sendErrorResponse sends response error with message and httpStatus in json format.
 func sendErrorResponse(w http.ResponseWriter, msg string, httpStatus int) {
 
