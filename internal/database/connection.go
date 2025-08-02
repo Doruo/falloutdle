@@ -35,21 +35,21 @@ func NewDatabaseConnection() (db *gorm.DB) {
 		os.Getenv("DB_SSLMODE"),
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn))
+	db, error := gorm.Open(postgres.Open(dsn))
 
-	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+	if error != nil {
+		log.Fatal("Failed to connect to database:", error)
 	}
 
 	// Auto-migration
-	err = db.AutoMigrate(&character.Character{})
-	if err != nil {
-		log.Fatal("Failed to migrate Character :", err)
+	error = db.AutoMigrate(&character.Character{})
+	if error != nil {
+		log.Fatal("Failed to migrate Character :", error)
 	}
 
-	err = db.AutoMigrate(&game.Game{})
-	if err != nil {
-		log.Fatal("Failed to migrate: Game", err)
+	error = db.AutoMigrate(&game.Game{})
+	if error != nil {
+		log.Fatal("Failed to migrate: Game", error)
 	}
 
 	return

@@ -37,10 +37,10 @@ func AddAllCharactersFromWiki() {
 	repo := NewCharacterRepository(db)
 	client := wiki.NewWikiClient()
 
-	chars, err := client.FetchAllCharacters()
+	chars, error := client.FetchAllCharacters()
 
-	if err != nil {
-		fmt.Print("Error during fetch: %t", err)
+	if error != nil {
+		fmt.Print("Error during fetch: %t", error)
 	}
 
 	for _, character := range chars {

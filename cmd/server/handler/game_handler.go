@@ -35,9 +35,9 @@ func (h *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request) {
 	}
 
 	const url = "./index.html"
-	content, err := os.ReadFile(url)
-	if err != nil {
-		fmt.Println("Error: ", err)
+	content, error := os.ReadFile(url)
+	if error != nil {
+		fmt.Println("Error: ", error)
 	}
 
 	sendHTMLResponse(w, content)
@@ -112,27 +112,27 @@ func (h *GameHandler) HandlePostGuess(w http.ResponseWriter, r *http.Request) {
 
 	// Read body
 	defer r.Body.Close()
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
+	body, error := io.ReadAll(r.Body)
+	if error != nil {
 		sendErrorResponse(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
 	// Parse result result
 	var result map[string]string
-	err = json.Unmarshal(body, &result)
+	error = json.Unmarshal(body, &result)
 
-	if err != nil {
-		sendErrorResponse(w, err.Error(), http.StatusBadRequest)
+	if error != nil {
+		sendErrorResponse(w, error.Error(), http.StatusBadRequest)
 		return
 	}
 
 	name := result["character_name"]
 	fmt.Println("Guess value:", name)
-	isGuessed, err := h.gameService.ProcessGuess(name)
+	isGuessed, error := h.gameService.ProcessGuess(name)
 
-	if err != nil {
-		sendErrorResponse(w, err.Error(), http.StatusInternalServerError)
+	if error != nil {
+		sendErrorResponse(w, error.Error(), http.StatusInternalServerError)
 		return
 	}
 

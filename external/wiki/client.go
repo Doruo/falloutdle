@@ -42,18 +42,18 @@ func NewWikiClient() *WikiClient {
 // FetchCharacterByName retrieves the raw content of a wiki page and returns a character struct
 func (w *WikiClient) FetchCharacterByName(name string) (*character.Character, error) {
 
-	content, err := w.FetchPageContent(name)
+	content, error := w.FetchPageContent(name)
 
-	if err != nil {
-		log.Printf("Error while fetching page content for %s: %v", name, err)
-		return nil, err
+	if error != nil {
+		log.Printf("Error while fetching page content for %s: %v", name, error)
+		return nil, error
 	}
 
-	c, err := w.ParseCharacterFromContent(name, content)
+	c, error := w.ParseCharacterFromContent(name, content)
 
-	if err != nil {
-		log.Printf("Error while parsing character %s: %v", name, err)
-		return nil, err
+	if error != nil {
+		log.Printf("Error while parsing character %s: %v", name, error)
+		return nil, error
 	}
 
 	return c, nil
@@ -64,11 +64,11 @@ func (w *WikiClient) FetchCharacterByName(name string) (*character.Character, er
 func (w *WikiClient) FetchAllCharacters() (characters []*character.Character, e error) {
 
 	for _, game_code := range character.AllGameCodes {
-		temp_characters, err := w.FetchCharactersByGame(game_code)
+		temp_characters, error := w.FetchCharactersByGame(game_code)
 
 		// Error case
-		if err != nil {
-			log.Printf("Error fetching characters for game %s: %v", game_code, err)
+		if error != nil {
+			log.Printf("Error fetching characters for game %s: %v", game_code, error)
 			return nil, e
 		}
 
@@ -108,9 +108,9 @@ func (w *WikiClient) FetchCharactersByGame(game character.GameCode) ([]*characte
 
 		fullURL := w.baseURL + "?" + iterParams.Encode()
 
-		resp, err := w.httpClient.Get(fullURL)
-		if err != nil {
-			return nil, fmt.Errorf("HTTP request failed: %w", err)
+		resp, error := w.httpClient.Get(fullURL)
+		if error != nil {
+			return nil, fmt.Errorf("HTTP request failed: %w", error)
 		}
 		defer resp.Body.Close()
 
@@ -125,8 +125,8 @@ func (w *WikiClient) FetchCharactersByGame(game character.GameCode) ([]*characte
 				} `json:"categorymembers"`
 			} `json:"query"`
 		}
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			return nil, fmt.Errorf("failed to decode JSON: %w", err)
+		if error := json.NewDecoder(resp.Body).Decode(&result); error != nil {
+			return nil, fmt.Errorf("failed to decode JSON: %w", error)
 		}
 
 		for _, member := range result.Query.CategoryMembers {
@@ -134,15 +134,15 @@ func (w *WikiClient) FetchCharactersByGame(game character.GameCode) ([]*characte
 				continue
 			}
 
-			content, err := w.FetchPageContent(member.Title)
-			if err != nil {
-				log.Printf("Failed to get content for %s: %v", member.Title, err)
+			content, error := w.FetchPageContent(member.Title)
+			if error != nil {
+				log.Printf("Failed to get content for %s: %v", member.Title, error)
 				continue
 			}
 
-			character, err := w.ParseCharacterFromContent(member.Title, content)
-			if err != nil {
-				log.Printf("Failed to parse character %s: %v", member.Title, err)
+			character, error := w.ParseCharacterFromContent(member.Title, content)
+			if error != nil {
+				log.Printf("Failed to parse character %s: %v", member.Title, error)
 				continue
 			}
 
@@ -172,17 +172,17 @@ func (w *WikiClient) FetchPageContent(title string) (string, error) {
 	// Full wiki api request parse
 	fullURL := w.baseURL + "?" + params.Encode()
 	// HTTP request to wiki api
-	resp, err := w.httpClient.Get(fullURL)
+	resp, error := w.httpClient.Get(fullURL)
 
-	if err != nil {
-		return "", fmt.Errorf("http request failed: %w", err)
+	if error != nil {
+		return "", fmt.Errorf("http request failed: %w", error)
 	}
 	defer resp.Body.Close()
 
 	var wikiResp WikiResponse
 
-	if err := json.NewDecoder(resp.Body).Decode(&wikiResp); err != nil {
-		return "", fmt.Errorf("json decode failed: %w", err)
+	if error := json.NewDecoder(resp.Body).Decode(&wikiResp); error != nil {
+		return "", fmt.Errorf("json decode failed: %w", error)
 	}
 
 	// Extract content from response first page

@@ -21,10 +21,10 @@ func NewCharacterService(repo *Repository) *Service {
 
 func (s *Service) GetCharacters() ([]Character, error) {
 
-	characters, err := s.repository.GetAll(0, 0)
+	characters, error := s.repository.GetAll(0, 0)
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to get characters: %w", err)
+	if error != nil {
+		return nil, fmt.Errorf("failed to get characters: %w", error)
 	}
 
 	return characters, nil
@@ -33,10 +33,10 @@ func (s *Service) GetCharacters() ([]Character, error) {
 // GetCharactersValid retrieves all valid characters for the game
 func (s *Service) GetCharactersValid() ([]Character, error) {
 
-	characters, err := s.GetCharacters()
+	characters, error := s.GetCharacters()
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to get characters: %w", err)
+	if error != nil {
+		return nil, fmt.Errorf("failed to get characters: %w", error)
 	}
 
 	// Filter valid characters for the game
@@ -57,9 +57,9 @@ func (s *Service) GetCharacterByID(id uint) (*Character, error) {
 		return nil, errors.New("invalid ID")
 	}
 
-	char, err := s.repository.GetByID(id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character ID %d: %w", id, err)
+	char, error := s.repository.GetByID(id)
+	if error != nil {
+		return nil, fmt.Errorf("failed to get character from ID %d: %w", id, error)
 	}
 
 	return char, nil
@@ -71,9 +71,9 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 		return nil, errors.New("invalid title")
 	}
 
-	char, err := s.repository.GetByWikiTitle(title)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character from tite %s: %w", title, err)
+	char, error := s.repository.GetByWikiTitle(title)
+	if error != nil {
+		return nil, fmt.Errorf("failed to get character from title %s: %w", title, error)
 	}
 
 	return char, nil
@@ -82,9 +82,9 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 // GetCharacterRandom selects a random character
 func (s *Service) GetCharacterRandom() (*Character, error) {
 
-	characters, err := s.GetCharactersValid()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get characters: %w", err)
+	characters, error := s.GetCharactersValid()
+	if error != nil {
+		return nil, fmt.Errorf("failed to get characters: %w", error)
 	}
 
 	if len(characters) == 0 {
@@ -105,16 +105,16 @@ func (s *Service) UpdateCharacterAsPlayed(id uint) error {
 		return errors.New("invalid character ID")
 	}
 
-	char, err := s.repository.GetByID(id)
-	if err != nil {
-		return fmt.Errorf("character not found: %w", err)
+	char, error := s.repository.GetByID(id)
+	if error != nil {
+		return fmt.Errorf("character not found: %w", error)
 	}
 
 	char.UpdateAsPlayed()
 
-	err = s.repository.Update(char)
-	if err != nil {
-		return fmt.Errorf("failed to update character: %w", err)
+	error = s.repository.Update(char)
+	if error != nil {
+		return fmt.Errorf("failed to update character: %w", error)
 	}
 
 	return nil
@@ -127,16 +127,16 @@ func (s *Service) UpdateCharacterAsUnplayed(id uint) error {
 		return errors.New("invalid character ID")
 	}
 
-	char, err := s.repository.GetByID(id)
-	if err != nil {
-		return fmt.Errorf("character not found: %w", err)
+	char, error := s.repository.GetByID(id)
+	if error != nil {
+		return fmt.Errorf("character not found: %w", error)
 	}
 
 	char.UpdateAsUnplayed()
 
-	err = s.repository.Update(char)
-	if err != nil {
-		return fmt.Errorf("failed to update character: %w", err)
+	error = s.repository.Update(char)
+	if error != nil {
+		return fmt.Errorf("failed to update character: %w", error)
 	}
 
 	return nil

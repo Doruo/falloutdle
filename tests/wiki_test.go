@@ -12,8 +12,8 @@ var content_show_length = 50 // Set value > 0 to display response content
 
 func TestMediaWikiClient_GetPageContent(t *testing.T) {
 
-	if content, err := client.FetchPageContent(character_name); err != nil {
-		t.Fatalf("Expected no error, got %v", err)
+	if content, error := client.FetchPageContent(character_name); error != nil {
+		t.Fatalf("Expected no error, got %v", error)
 	} else if len(content) > 0 {
 		t.Logf("%s...\n", content[:content_show_length])
 	} else {
@@ -23,16 +23,16 @@ func TestMediaWikiClient_GetPageContent(t *testing.T) {
 
 func TestMediaWikiClient_ParseCharacterFromContent(t *testing.T) {
 
-	content, err := client.FetchPageContent(character_name)
+	content, error := client.FetchPageContent(character_name)
 
-	if err != nil {
-		t.Fatalf("Expected no error, got %v", err)
+	if error != nil {
+		t.Fatalf("Expected no error, got %v", error)
 	}
 
-	character, err := client.ParseCharacterFromContent(character_name, content)
+	character, error := client.ParseCharacterFromContent(character_name, content)
 
-	if err != nil {
-		t.Fatalf("Expected no error, got %v", err)
+	if error != nil {
+		t.Fatalf("Expected no error, got %v", error)
 	}
 
 	if len(content) > 0 {
@@ -46,10 +46,10 @@ func TestMediaWikiClient_FetchAllCharacters(t *testing.T) {
 
 	t.Skip("Skipping expensive test") // REMOVE TO DO TEST
 
-	characters, err := client.FetchAllCharacters()
+	characters, error := client.FetchAllCharacters()
 
-	if err != nil {
-		t.Fatalf("Expected no error, got %v", err)
+	if error != nil {
+		t.Fatalf("Expected no error, got %v", error)
 	}
 
 	if len(characters) > 0 {
