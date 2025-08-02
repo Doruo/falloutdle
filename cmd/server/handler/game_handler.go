@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 
 	"github.com/doruo/falloutdle/internal/game"
 	"github.com/doruo/falloutdle/pkg/time"
@@ -22,26 +21,6 @@ func NewGameHandler(gs *game.Service) *GameHandler {
 }
 
 // /----- HTTP GET -----/
-
-// HandleGetHome
-func (h *GameHandler) HandleGetHome(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println(time.Today(), "API - handling GET request: home page ...")
-
-	// Verify correct http method
-	if !isGetMethod(r) {
-		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	const url = "./index.html"
-	content, error := os.ReadFile(url)
-	if error != nil {
-		fmt.Println("Error: ", error)
-	}
-
-	sendHTMLResponse(w, content)
-}
 
 func (h *GameHandler) HandleGetGames(w http.ResponseWriter, r *http.Request) {
 
