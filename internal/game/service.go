@@ -23,27 +23,27 @@ func NewGameService(cs *character.Service, repo *Repository) *Service {
 }
 
 // NewCurrentGame creates a new game for today from a RandomCharacter
-func (gs *Service) NewCurrentGame() (*Game, error) {
+func (s *Service) NewCurrentGame() (*Game, error) {
 
 	// Retrieves random character from database
-	character, error := gs.getCharacterValidRandom()
+	character, error := s.getCharacterValidRandom()
 
 	// Retrieves another character if not valid
-	for !gs.characterService.IsValidForGame(character) {
+	for !s.characterService.IsValidForGame(character) {
 
 		if error != nil {
 			return nil, error
 		}
 
-		character, error = gs.getCharacterValidRandom()
+		character, error = s.getCharacterValidRandom()
 	}
 
 	// Marks character or update played date
-	gs.characterService.UpdateCharacterAsPlayed(character.ID)
+	s.characterService.UpdateCharacterAsPlayed(character.ID)
 
 	// Create and save game into database
 	game := NewGame(character.ID)
-	gs.Add(game)
+	s.Add(game)
 
 	return game, nil
 }
@@ -51,38 +51,52 @@ func (gs *Service) NewCurrentGame() (*Game, error) {
 // /----- CREATE LOGIC FUNCTIONS -----/
 
 // Add a game into database, returns nil if no error
-func (gs *Service) Add(g *Game) error {
-	if err := gs.repository.Add(g); err != nil {
-		return err
+func (s *Service) Add(g *Game) error {
+	if error := s.repository.Add(g); error != nil {
+		return error
 	}
 	return nil
 }
 
 // /----- GET LOGIC FUNCTIONS -----/
 
-func (gs *Service) GetGames() ([]Game, error) {
+func (s *Service) GetGames() ([]Game, error) {
 
-	games, error := gs.repository.GetAll(0, 0)
+	games, error := s.repository.GetAll(0, 0)
 
 	if error != nil {
-		return nil, error
+		return nil, fmt.Errorf("failed to get characters: %w", error)
 	}
 
 	return games, nil
 }
 
-func (gs *Service) getCharacterValidRandom() (*character.Character, error) {
+func (s *Service) GetGameByID(id uint) (*Game, error) {
+
+	if id <= 0 {
+		return nil, fmt.Errorf("invalid ID")
+	}
+
+	game, error := s.repository.GetByID(id)
+	if error != nil {
+		return nil, fmt.Errorf("failed to get game from ID %d: %w", id, error)
+	}
+
+	return game, nil
+}
+
+func (s *Service) getCharacterValidRandom() (*character.Character, error) {
 
 	// Retrieves random character from database
-	character, error := gs.characterService.GetCharacterRandom()
+	character, error := s.characterService.GetCharacterRandom()
 
 	// Retrieves another character if not valid
-	for !gs.characterService.IsValidForGame(character) {
+	for !s.characterService.IsValidForGame(character) {
 
 		if error != nil {
 			return nil, error
 		}
-		character, error = gs.characterService.GetCharacterRandom()
+		character, error = s.characterService.GetCharacterRandom()
 	}
 
 	return character, nil
@@ -90,17 +104,17 @@ func (gs *Service) getCharacterValidRandom() (*character.Character, error) {
 
 // GetCurrentCharacter returns today current character.
 // Creates a new one if none found
-func (gs *Service) GetCurrentCharacter() (*character.Character, error) {
+func (s *Service) GetCurrentCharacter() (*character.Character, error) {
 
-	game, err := gs.GetGameCurrent()
+	game, error := s.GetGameCurrent()
 
-	if err != nil {
-		return nil, err
+	if error != nil {
+		return nil, error
 	}
-	character, err := gs.characterService.GetCharacterByID(game.CharacterId)
+	character, error := s.characterService.GetCharacterByID(game.CharacterId)
 
-	if err != nil {
-		return nil, err
+	if error != nil {
+		return nil, error
 	}
 
 	return character, nil
@@ -108,32 +122,32 @@ func (gs *Service) GetCurrentCharacter() (*character.Character, error) {
 
 // GetGameCurrent returns today current game.
 // Creates a new one for if none found
-func (gs *Service) GetGameCurrent() (*Game, error) {
+func (s *Service) GetGameCurrent() (*Game, error) {
 
 	// Creates a new one for today if none found
-	if gs.currentGame == nil {
+	if s.currentGame == nil {
 
 		fmt.Println("LOG: no game found for today, creating new one...")
 
-		var err error
-		gs.currentGame, err = gs.NewCurrentGame()
+		var error error
+		s.currentGame, error = s.NewCurrentGame()
 
-		if err != nil {
-			return nil, err
+		if error != nil {
+			return nil, error
 		}
 	}
 
-	return gs.currentGame, nil
+	return s.currentGame, nil
 }
 
 // /----- POST LOGIC FUNCTIONS -----/
 
-func (gs *Service) ProcessGuess(name string) (bool, error) {
+func (s *Service) ProcessGuess(name string) (bool, error) {
 
-	character, err := gs.GetCurrentCharacter()
+	character, error := s.GetCurrentCharacter()
 
-	if err != nil {
-		return false, err
+	if error != nil {
+		return false, error
 	}
 
 	return isGuessCorrect(name, character.Name), nil
