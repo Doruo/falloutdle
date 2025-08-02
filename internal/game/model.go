@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Game represents a game state.
+// Game struct represents a game state.
 type Game struct {
 	Id          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
 	Date        time.Time `json:"date" gorm:"date;"`

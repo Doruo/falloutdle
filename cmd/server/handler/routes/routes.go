@@ -12,6 +12,7 @@ const routeGetHome = "/"
 // Game routes
 // GET
 const routeGetGames = "/api/games"
+const routeGetGameToday = "/api/games/today"
 
 //const rougeGetGame = "/api/games/:id"
 
@@ -32,6 +33,7 @@ func SetupGameRoutes(mux *http.ServeMux, h *handler.GameHandler) {
 
 	// GET
 	mux.HandleFunc(routeGetGames, h.HandleGetGames)
+	mux.HandleFunc(routeGetGameToday, h.HandleGetGameToday)
 	mux.HandleFunc(routeGetCharacterToday, h.HandleGetTodayCharacter)
 
 	// POST

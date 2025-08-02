@@ -9,13 +9,14 @@ import (
 	"github.com/doruo/falloutdle/pkg/strutils"
 )
 
-// Game logic service
+// Game logic service.
 type Service struct {
 	characterService character.Service
 	repository       Repository
 	currentGame      *Game
 }
 
+// NewGameService creates a new game service.
 func NewGameService(cs *character.Service, repo *Repository) *Service {
 	return &Service{
 		characterService: *cs,
@@ -23,7 +24,7 @@ func NewGameService(cs *character.Service, repo *Repository) *Service {
 	}
 }
 
-// NewCurrentGame creates a new game for today from a RandomCharacter
+// NewCurrentGame creates a new game for today from a RandomCharacter.
 func (s *Service) NewCurrentGame() (*Game, error) {
 
 	// Retrieves random character from database
@@ -51,7 +52,7 @@ func (s *Service) NewCurrentGame() (*Game, error) {
 
 // /----- CREATE LOGIC FUNCTIONS -----/
 
-// Add a game into database, returns nil if no error
+// Add a game into database, returns nil if no error.
 func (s *Service) Add(g *Game) error {
 	if error := s.repository.Add(g); error != nil {
 		return error
@@ -113,9 +114,9 @@ func (s *Service) getCharacterValidRandom() (*character.Character, error) {
 	return character, nil
 }
 
-// GetCurrentCharacter returns today current character.
-// Creates a new one if none found
-func (s *Service) GetCurrentCharacter() (*character.Character, error) {
+// GetGameCurrentCharacter returns today current character.
+// Creates a new one if none found.
+func (s *Service) GetGameCurrentCharacter() (*character.Character, error) {
 
 	game, error := s.GetGameCurrent()
 
@@ -132,7 +133,7 @@ func (s *Service) GetCurrentCharacter() (*character.Character, error) {
 }
 
 // GetGameCurrent returns today current game.
-// Creates a new one for if none found
+// Creates a new one for if none found.
 func (s *Service) GetGameCurrent() (*Game, error) {
 
 	// Creates a new one for today if none found
@@ -155,7 +156,7 @@ func (s *Service) GetGameCurrent() (*Game, error) {
 
 func (s *Service) ProcessGuess(name string) (bool, error) {
 
-	character, error := s.GetCurrentCharacter()
+	character, error := s.GetGameCurrentCharacter()
 
 	if error != nil {
 		return false, error

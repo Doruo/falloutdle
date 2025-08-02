@@ -67,6 +67,29 @@ func (h *GameHandler) HandleGetGames(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *GameHandler) HandleGetGameToday(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("API - handling GET request: today game")
+
+	// Verify correct http method
+	if !isGetMethod(r) {
+		sendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	game, error := h.gameService.GetGameCurrent()
+
+	if error != nil {
+		sendErrorResponse(w, "Error while getting character: "+error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sendJSONResponse(w, Response{
+		Success: true,
+		Data:    game,
+	})
+}
+
 // HandleGetTodayCharacter returns today guess character.
 func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Request) {
 
@@ -78,7 +101,7 @@ func (h *GameHandler) HandleGetTodayCharacter(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	character, error := h.gameService.GetCurrentCharacter()
+	character, error := h.gameService.GetGameCurrentCharacter()
 
 	if error != nil {
 		sendErrorResponse(w, "Error while getting character: "+error.Error(), http.StatusInternalServerError)

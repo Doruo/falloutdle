@@ -7,12 +7,12 @@ import (
 	"github.com/doruo/falloutdle/pkg/random"
 )
 
-// characterService implements Repository using CharacterRepository
+// characterService implements Repository using CharacterRepository.
 type Service struct {
 	repository *Repository
 }
 
-// NewCharacterService creates a new character service
+// NewCharacterService creates a new character service.
 func NewCharacterService(repo *Repository) *Service {
 	return &Service{repository: repo}
 }
@@ -30,7 +30,7 @@ func (s *Service) GetCharacters() ([]Character, error) {
 	return characters, nil
 }
 
-// GetCharactersValid retrieves all valid characters for the game
+// GetCharactersValid retrieves all valid characters for the game.
 func (s *Service) GetCharactersValid() ([]Character, error) {
 
 	characters, error := s.GetCharacters()
@@ -39,7 +39,7 @@ func (s *Service) GetCharactersValid() ([]Character, error) {
 		return nil, fmt.Errorf("failed to get characters: %w", error)
 	}
 
-	// Filter valid characters for the game
+	// Filter valid characters for the game.
 	var validCharacters []Character
 	for _, char := range characters {
 		if s.IsValidForGame(&char) {
@@ -50,7 +50,7 @@ func (s *Service) GetCharactersValid() ([]Character, error) {
 	return validCharacters, nil
 }
 
-// GetCharacterByID retrieves a character by ID
+// GetCharacterByID retrieves a character by ID.
 func (s *Service) GetCharacterByID(id uint) (*Character, error) {
 
 	if id <= 0 {
@@ -79,7 +79,7 @@ func (s *Service) GetByWikiTitle(title string) (*Character, error) {
 	return char, nil
 }
 
-// GetCharacterRandom selects a random character
+// GetCharacterRandom selects a random character.
 func (s *Service) GetCharacterRandom() (*Character, error) {
 
 	characters, error := s.GetCharactersValid()
@@ -98,7 +98,8 @@ func (s *Service) GetCharacterRandom() (*Character, error) {
 
 // /----- UTILITY FUNCTIONS -----/
 
-// UpdateCharacterAsPlayed marks a character as played or updates his date if already played
+// UpdateCharacterAsPlayed marks a character as played.
+// Updates his date if already played.
 func (s *Service) UpdateCharacterAsPlayed(id uint) error {
 
 	if id <= 0 {
@@ -120,7 +121,7 @@ func (s *Service) UpdateCharacterAsPlayed(id uint) error {
 	return nil
 }
 
-// UpdateCharacterAsUnplayed set a character as unplayed
+// UpdateCharacterAsUnplayed set a character as unplayed.
 func (s *Service) UpdateCharacterAsUnplayed(id uint) error {
 
 	if id <= 0 {
@@ -142,7 +143,7 @@ func (s *Service) UpdateCharacterAsUnplayed(id uint) error {
 	return nil
 }
 
-// isValidForGame checks if a character is valid for the game
+// isValidForGame checks if a character is valid for the game.
 func (s *Service) IsValidForGame(c *Character) bool {
 
 	if c.Name == "" || c.Race == "" {
