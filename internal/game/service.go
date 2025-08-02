@@ -90,7 +90,7 @@ func (s *Service) GetGameByDate(date time.Time) (*Game, error) {
 
 	game, error := s.repository.GetByDate(date)
 	if error != nil {
-		return nil, fmt.Errorf("failed to get game from date %d: %w", date, error)
+		return nil, fmt.Errorf("failed to get game from date %s: %w", date, error)
 	}
 
 	return game, nil
