@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +13,15 @@ import (
 	"github.com/doruo/falloutdle/internal/game"
 )
 
+func displayTitle() {
+	file, _ := os.ReadFile("../../title.txt")
+	fmt.Println()
+	fmt.Println(string(file))
+	fmt.Println()
+}
+
 func main() {
+	displayTitle()
 
 	// Database connection
 	db := database.GetInstance()
@@ -35,6 +44,10 @@ func main() {
 	routes.SetupGameRoutes(mux, gameHandler)
 	routes.SetupCharacterRoutes(mux, characterHandler)
 
+	listen(mux)
+}
+
+func listen(mux *http.ServeMux) {
 	// Port listening
 	host := os.Getenv("HOST")
 	port := ":" + os.Getenv("PORT")
