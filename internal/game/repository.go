@@ -11,7 +11,7 @@ type Repository struct {
 	db *gorm.DB
 }
 
-func NewgameRepository(db *gorm.DB) *Repository {
+func NewGameRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 

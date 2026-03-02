@@ -31,7 +31,7 @@ func main() {
 	characterService := character.NewCharacterService(characterRepo)
 
 	// Game
-	gameRepo := game.NewgameRepository(db)
+	gameRepo := game.NewGameRepository(db)
 	gameService := game.NewGameService(characterService, gameRepo)
 	gameService.GetGameCurrent() // Creates a new game if nil
 
