@@ -5,41 +5,30 @@ import (
 	"log"
 	"os"
 
+	"gorm.io/driver/mysql"
+
 	"github.com/doruo/falloutdle/internal/character"
 	"github.com/doruo/falloutdle/internal/game"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// NewDatabaseConnection creates and returns a new database connection instance
-func NewDatabaseConnection() (db *gorm.DB) {
-
-	// Database connection
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USERNAME"),
+func NewDatabaseConnection() *gorm.DB {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
+		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
-		os.Getenv("DB_SSLMODE"),
+		os.Getenv("DB_NAME"),
 	)
 
-	db, error := gorm.Open(postgres.Open(dsn))
-
-	if error != nil {
-		log.Fatal("Failed to connect to database:", error)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Auto-migration
-	error = db.AutoMigrate(&character.Character{})
-	if error != nil {
-		log.Fatal("Failed to migrate table Character:", error)
+	if err = db.AutoMigrate(&character.Character{}, &game.Game{}); err != nil {
+		log.Fatal("Failed to migrate tables:", err)
 	}
 
-	error = db.AutoMigrate(&game.Game{})
-	if error != nil {
-		log.Fatal("Failed to migrate table Game:", error)
-	}
-
-	return
+	return db
 }

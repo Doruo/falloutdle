@@ -30,6 +30,11 @@ func (s *Service) NewCurrentGame() (*Game, error) {
 	// Retrieves random character from database
 	character, error := s.getCharacterValidRandom()
 
+	if character == nil {
+		fmt.Println("LOG: no character found for today...")
+		return nil, fmt.Errorf("failed to retrieve a random character: %w", error)
+	}
+
 	// Retrieves another character if not valid
 	for !s.characterService.IsValidForGame(character) {
 
@@ -101,6 +106,9 @@ func (s *Service) getCharacterValidRandom() (*character.Character, error) {
 
 	// Retrieves random character from database
 	character, error := s.characterService.GetCharacterRandom()
+	if error != nil {
+		return nil, fmt.Errorf("failed to retrieve a random character: %w", error)
+	}
 
 	// Retrieves another character if not valid
 	for !s.characterService.IsValidForGame(character) {

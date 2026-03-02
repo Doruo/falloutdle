@@ -15,7 +15,7 @@
 
 # Export .env variables
 set -a  # auto-export enable
-source .env
+source docker/.env
 set +a # auto-export disable
 
 # Project config

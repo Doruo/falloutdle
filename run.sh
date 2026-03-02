@@ -15,12 +15,12 @@
 
 # Export .env variables
 set -a  # auto-export enable
-source .env
+source docker/.env
 set +a # auto-export disable
 
 # Project config
 PROJECT_NAME="falloutdle"
-PROJECT_PATH="$HOME/dev/$PROJECT_NAME"
+PROJECT_PATH="$HOME/dev/perso/$PROJECT_NAME"
 
 # Main config
 MAIN_PATH="cmd/server"                    # Default server path
@@ -114,13 +114,6 @@ setup_environment() {
     print_info "Environment configured for $APP_ENV mode"
 }
 
-# Clean up function (called on script exit)
-cleanup() {
-    print_info "Cleaning up..."
-    # Add cleanup tasks here
-    # Example: stop background processes, remove temp files, etc.
-}
-
 # Display help information
 show_help() {
     cat << EOF
@@ -178,7 +171,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Set up signal handlers for graceful shutdown
-trap cleanup EXIT
 trap 'print_warning "Interrupted by user"; exit 130' INT
 
 # Pre-flight checks
